@@ -1,3 +1,9 @@
+# 独立预后分析: 判断 riskScore 在校正临床因素后是否仍然独立预测生存
+#
+# 输入: Risk.txt(来自 46 或 71; 列序 1=futime 2=fustat ... 倒数第2=riskScore 末列=risk),
+#       Clinical.txt(行=样本, 列=临床变量)
+# 输出: unCox.txt / muCox.txt 两张表, unForest.pdf / muForest.pdf 两张森林图
+
 
 library(survival)
 risk=read.table("Risk.txt",header=T,sep="\t",check.names=F,row.names=1)        #读取风险文件
@@ -5,10 +11,13 @@ cli=read.table("Clinical.txt",sep="\t",check.names=F,header=T,row.names=1)     #
 sameSample=intersect(row.names(cli),row.names(risk))
 risk=risk[sameSample,]
 cli=cli[sameSample,]
+# ⚠ 完全按位置取列: 1=futime, 2=fustat, 倒数第 2 = riskScore。
+#   Risk.txt 的列序一旦变化, 这里会静默取到别的列。
 rt=cbind(futime=risk[,1],fustat=risk[,2],cli,riskScore=risk[,(ncol(risk)-1)])
 
 #单因素独立预后分析
 uniTab=data.frame()
+# 单因素: 每个临床变量和 riskScore 各自单独进模型
 for(i in colnames(rt[,3:ncol(rt)])){
 	 cox <- coxph(Surv(futime, fustat) ~ rt[,i], data = rt)
 	 coxSummary = summary(cox)
@@ -23,6 +32,8 @@ for(i in colnames(rt[,3:ncol(rt)])){
 write.table(uniTab,file="unCox.txt",sep="\t",row.names=F,quote=F)
 
 #多因素独立预后分析
+# 多因素: "." 把 rt 里除 futime/fustat 外的所有列一并放入, 不做任何变量选择。
+# ⚠ 临床变量若是字符型会被当作因子展开成多个哑变量; 缺失值会导致该样本被整行丢弃。
 multiCox=coxph(Surv(futime, fustat) ~ ., data = rt)
 multiCoxSum=summary(multiCox)
 multiTab=data.frame()
@@ -36,7 +47,9 @@ write.table(multiTab,file="muCox.txt",sep="\t",row.names=F,quote=F)
 
 
 ############绘制森林图函数############
-bioForest=function(coxFile=null,forestFile=null,forestCol=null){
+# ⚠ 形参默认值写的是 null(小写), R 里没有这个对象, 正确写法是 NULL。
+#   因为三个参数在调用时都显式传了值, 默认值从未被求值, 所以侥幸不报错。已改为 NULL。
+bioForest=function(coxFile=NULL,forestFile=NULL,forestCol=NULL){
 		rt <- read.table(coxFile,header=T,sep="\t",row.names=1,check.names=F)
 		gene <- rownames(rt)
 		hr <- sprintf("%.3f",rt$"HR")
@@ -65,6 +78,9 @@ bioForest=function(coxFile=null,forestFile=null,forestCol=null){
 		plot(1,xlim=xlim,ylim=ylim,type="n",axes=F,ylab="",xaxs="i",xlab="Hazard ratio")
 		arrows(as.numeric(hrLow),n:1,as.numeric(hrHigh),n:1,angle=90,code=3,length=0.05,col="darkblue",lwd=2.5)
 		abline(v=1,col="black",lty=2,lwd=2)
+# ⚠ ifelse 的两个分支返回同一个 forestCol, 等价于无条件取该颜色 ——
+#   与 44.Prognosis_Related_Gene_Selection 里「HR>1 红 / <1 绿」的做法不同。
+#   未自动修改: 若本意就是「每张森林图用单一颜色」, 现状是对的。
 		boxcolor = ifelse(as.numeric(hr) > 1, forestCol, forestCol)
 		points(as.numeric(hr), n:1, pch = 15, col = boxcolor, cex=1.3)
 		axis(1)
