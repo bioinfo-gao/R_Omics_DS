@@ -1,3 +1,12 @@
+# 三个 GEO 数据集合并后的去批次对比: ComBat vs removeBatchEffect, 再做差异分析
+#
+# 输入: 联网下载 GSE205185 / GSE29431 / GSE20711 及平台文件(GPL21185, GPL570)
+# 输出: 去批次前后的箱线图与 PCA 共 6 张, 以及 deg_all.txt / upanddown.csv
+#
+# ⚠⚠ 第 150-153 行的分组是【手工写死的样本计数】, 第 206-208 行的「方法选择」
+#   实际只有后一行生效。两处都会静默影响结论, 详见各自说明。
+# 注: 前半部分与 57.Multi_GEO_Merge_Analysis 高度重复(同样三个数据集、同样的转 ID 流程)。
+
 ###加载R包
 library(readxl)
 library(tidyverse)
@@ -27,6 +36,7 @@ plf3<-gset3[[1]]@annotation
 #提取平台文件
 GPL_data<- getGEO(filename ="GPL21185.soft.gz", AnnotGPL = T)
 GPL_data_11 <- Table(GPL_data)
+# ⚠ GPL_data1 与 GPL_data2 读的是同一个 GPL570 文件, 解析了两遍
 GPL_data1<- getGEO(filename ="GPL570.annot.gz", AnnotGPL = T)
 GPL_data_22 <- Table(GPL_data1)
 GPL_data2<- getGEO(filename ="GPL570.annot.gz", AnnotGPL = T)
@@ -44,6 +54,8 @@ probe_name3<-rownames(exp3)
 ###########       数据1转ID       #############
 ###########                       #############
 ###############################################
+# ⚠ match 对表达矩阵中不存在的探针返回 NA, exp[NA,] 产生整行 NA;
+#   第 50 行按【基因符号】过滤并不能去掉它们, 要到 na.omit 才清掉。
 loc<-match(GPL_data_11[,1],probe_name)
 probe_exp<-exp[loc,]
 raw_geneid<-(as.matrix(GPL_data_11[,"GENE_SYMBOL"]))
@@ -147,17 +159,32 @@ write.csv(talgroup,file = "group.csv")
 
 #####多个数据去批次#####
 ##处理分组
+# ⚠⚠ 这两组向量是【按样本数手工写死】的:
+#   batchType 假定三批依次是 22 / 66 / 90 个样本(共 178);
+#   modType 则是手抄的 T/N 序列(12T,3N,2T,1N,3T,1N | 12N,54T | 88T,2N)。
+#   它们与 bindgeo 的实际列没有任何名字层面的对应关系, 完全靠顺序与个数吻合。
+#   只要 GEO 上游数据更新、任一样本被过滤、或三个数据集的读取顺序改变,
+#   标签就会整体错位 —— 长度仍然相等时【不会报错】, ComBat 与 limma 都照跑,
+#   得到的是彻底错误的批次与分组。
+#   稳妥做法: 像上面的 group_list 那样从各自的 pData() 里派生, 再按列名对齐。
+#   未自动修改: 需要你确认三个数据集当前的实际样本数与顺序。
 batchType=c(rep(1,22),rep(2,66),rep(3,90))
 modType=c(rep("T",12),rep("N",3),rep("T",2),rep("N",1),rep("T",3),rep("N",1),
           rep("N",12),rep("T",54),
           rep("T",88),rep("N",2))
+# mod 保留生物学分组(T/N), 使 ComBat 在去批次时不把肿瘤/正常差异一起抹掉 —— 这一点是对的
 mod = model.matrix(~modType)
 pdf(file = "pre_normal.pdf",width = 10,height = 10)
 boxplot(bindgeo,outline=T, notch=T,col=talgroup_list, las=2)#绘制去批次前箱线图
 dev.off()
 #绘制去批次前PCA图
+# 去批次【前】的 PCA, 与第 176 行的那张构成对照
 dat.pca <- PCA(as.data.frame(t(bindgeo)), graph = FALSE)
 pca_plot <- fviz_pca_ind(dat.pca,
+# ⚠ factoextra 文档中 geom.ind 的取值是 "point"(单数), 本文件三处都写成了 "points";
+#   同仓库的 84.ComBat_Different_Datasets 用的是单数形式。
+#   本机未安装 factoextra, 我无法实测复数写法的实际行为 ——
+#   请你跑一次确认这三张 PCA 图里是否真的画出了散点, 若为空图就改成 "point"。
                          geom.ind = "points",#仅显示"点(points)"（但不是“文本(text)”）（show "points" only (but not "text")）
                          col.ind = talgroup_list,
                          palette = c("#00AFBB", "#E7B800"),
@@ -166,6 +193,7 @@ pca_plot <- fviz_pca_ind(dat.pca,
 pca_plot
 ggsave(plot = pca_plot,filename ="prenormal_PCA.pdf")
 #####ComBat法#####
+# ComBat: 经验贝叶斯估计批次效应, mod 中的生物学变量会被保留
 bindgeo_ComBat=ComBat(dat=bindgeo, batch=batchType, #使用ComBat法去批次
                       mod=mod, par.prior=TRUE)
 
@@ -184,6 +212,10 @@ pca_plot2
 ggsave(plot = pca_plot2,filename ="afternormal_PCA.pdf")
 
 #####removeBatchEffect法#####
+# ⚠ removeBatchEffect 未传 design 参数。不传时它只知道批次、不知道要保留什么,
+#   会把与批次相关的生物学差异一并回归掉。
+#   应写成 removeBatchEffect(bindgeo, batch=batchType, design=mod)。
+#   这也是它与上面 ComBat(传了 mod)不可直接对比的原因。
 bindgeo_remove=removeBatchEffect(bindgeo,batchType)
 pdf(file = "removenormal.pdf",width = 10,height = 10)
 boxplot(bindgeo_remove,outline=T, notch=T,col=talgroup_list, las=2)#绘制去批次后箱线图
@@ -200,15 +232,19 @@ pca_plot3
 ggsave(plot = pca_plot3,filename ="afternormal_PCA_remove.pdf")
 
 
+# 下面两行是「二选一」的意思, 但在 R 里它们是顺序执行的
 #####选择校正后的数据集进行后续的差异分析#####
 
 ###按照实际情况进行选择
+# ⚠⚠ 第 206 行随即被第 208 行覆盖 —— 无论注释怎么写, 实际生效的永远是
+#   最后一次赋值, 即 removeBatchEffect 的结果。若想用 ComBat, 必须把下一行注释掉。
 bindgeo_after=bindgeo_ComBat #选择ComBat法
 
 bindgeo_after=bindgeo_remove #选择removeBatchEffect法
 
 
 #####进行差异分析#####
+# ⚠ 差异分析用的是 talgroup_list; 它与 bindgeo_after 的列顺序同样是按位置对应的
 design=model.matrix(~talgroup_list)
 fit=lmFit(bindgeo_after,design)#这里要注意，分组的样本与矩阵样本是否相符，不相符则去文件中调整然后读入
 fit=eBayes(fit)
