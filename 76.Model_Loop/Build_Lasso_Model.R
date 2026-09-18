@@ -49,7 +49,7 @@ loopTime=100
 # FIXME ⚠ 仓库里这个文件已不叫 "主代码.R" —— 它长期以乱码名 "╓≈┤·┬δ.R" 存在,
 #   现已重命名为 main.R。因此这一行在改名前就已经 source 不到, 现在应改为 source("main.R")。
 #   本文件未作改动, 由你确认后再改。
-source("主代码.R")
+source("main.R")
 XXD_lasso_MOD_loop(data_orign_rt,data_orign_cli)
 
 
