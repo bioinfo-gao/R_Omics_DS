@@ -48,7 +48,8 @@ y=data$group
 #      因此 AUC 永远不会低于 0.5, 不能据此说明基因有判别力。
 #      要如实反映方向请显式写 direction="<" 或 ">"。
 roc1=roc(y, as.numeric(data[,gene]))
-# ⚠ bootstrap 置信区间未设 set.seed, 每次运行 95% CI 都会略有不同
+# bootstrap 置信区间已固定种子, 可复现
+set.seed(123)   # bootstrap 抽样固定, 保证 95% CI 可复现
 ci1=ci.auc(roc1, method="bootstrap")
 ciVec=as.numeric(ci1)
 pdf(file=paste0("ROC.",gene,".pdf"), width=5, height=5)

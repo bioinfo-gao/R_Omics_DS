@@ -29,12 +29,12 @@ dataDown2=t(apply(dataDown,1,function(x)ifelse(x>median(x),0,1)))
 #输出基因评分的结果
 outTab=rbind(dataUp2, dataDown2)
 outTab=rbind(id=colnames(outTab), outTab)
-write.table(outTab, file="基因评分.txt", sep="\t", quote=F, col.names=F)
+write.table(outTab, file="gene_score.txt", sep="\t", quote=F, col.names=F)
 
 
 
 #####构建模型
-inputFile="基因评分.txt"       #输入文件
+inputFile="gene_score.txt"       #输入文件
 #读取输入文件
 data=read.table(inputFile, header=T, sep="\t", check.names=F, row.names=1)
 data=as.data.frame(t(data))
@@ -50,7 +50,7 @@ fit$result.matrix
 fit$weight
 #plot(fit)
 
-pdf(file="神经网络模型.pdf", width=10, height=10)
+pdf(file="neural_network_model.pdf", width=10, height=10)
 plotnet(fit)
 dev.off()
 

@@ -21,28 +21,26 @@ data=t(data)
 group=gsub("(.*)\\-(.*)\\-(.*)\\-(.*)\\-(.*)", "\\5", row.names(data))
 
 #SVM-RFE分析
-# FIXME ⚠ 两个问题:
-#   1) y=as.numeric(as.factor(group)) 把类别变成了 1/2 的【数值】, rfe 因此按【回归】处理,
-#      这也是下面第 26 行取 RMSE 而不是 Accuracy 的原因。二分类应传 as.factor(group)。
-#   2) methods="svmRadial" 多了一个 s。caretFuncs$fit 是 train(x, y, ...),
-#      而 caret:::train.default 的 method 默认值是 "rf" —— 实测确认。
-#      于是 methods= 被 ... 吞掉, 这里跑的其实是【随机森林】RFE, 不是 SVM。
-#      正确写法是 method="svmRadial"。本文件未作改动, 由你确认后再改。
+# 三处已修复(原状态会让本脚本既不是 SVM 也不是分类):
+#   1) y 原为 as.numeric(as.factor(group)) 的 1/2 数值, rfe 按回归处理 -> 改为 factor;
+#   2) methods="svmRadial" 多一个 s, 被 ... 吞掉, caret:::train.default 默认 method="rf"
+#      (已实测确认) -> 改为 method=;
+#   3) 因而下面的选优指标由 RMSE 最小改为 Accuracy 最大。
 Profile=rfe(x=data,
-            y=as.numeric(as.factor(group)),
+            y=as.factor(group),
             sizes = c(2,4,6,8, seq(10,40,by=3)),
             rfeControl = rfeControl(functions = caretFuncs, method = "cv"),
-            methods="svmRadial")
+            method="svmRadial")
 
 #绘制图形
 pdf(file="SVM-RFE.pdf", width=6, height=5.5)
 par(las=1)
 x = Profile$results$Variables
-y = Profile$results$RMSE
-plot(x, y, xlab="Variables", ylab="RMSE (Cross-Validation)", col="darkgreen")
+y = Profile$results$Accuracy
+plot(x, y, xlab="Variables", ylab="Accuracy (Cross-Validation)", col="darkgreen")
 lines(x, y, col="darkgreen")
-#标注交叉验证误差最小的点
-wmin=which.min(y)
+#标注交叉验证准确率最高的点(分类任务取最大值)
+wmin=which.max(y)
 wmin.x=x[wmin]
 wmin.y=y[wmin]
 points(wmin.x, wmin.y, col="blue", pch=16)
@@ -53,13 +51,10 @@ dev.off()
 featureGenes=Profile$optVariables
 write.table(file="SVM-RFE.gene.txt", featureGenes, sep="\t", quote=F, row.names=F, col.names=F)
 rt1=t(data)
-# FIXME ⚠ lassoGene 在本脚本中从未定义 —— 它是 28.lasso_gene_selection/lasso.R 的变量。
-#   全新会话里运行会报 object 'lassoGene' not found;
-#   若先跑过 lasso.R 再跑本脚本, 则会静默拿 LASSO 选出的基因当成 SVM 的结果。
-#   这里应当用第 38 行的 featureGenes。
+# 已修复: 原先写的是 lassoGene(28.lasso_gene_selection 的变量, 本脚本从未定义)。
+# 同一会话里先跑过 lasso.R 的话, 会静默把 LASSO 的基因当成 SVM 的结果。
 svmexp=rt1[featureGenes,,drop=F]
 svmexp=as.data.frame(svmexp)
 colnames(svmexp)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\-\\4", colnames(svmexp))
-# FIXME ⚠ 同上: 写出的是 lassoexp(LASSO 的表达矩阵), 而不是本脚本算出的 svmexp。
-#   结果是 SVM.geneExp.txt 里装的其实是 LASSO 的结果。应改为 write.table(svmexp, ...)。
+# 已修复: 原先写出的是 lassoexp(LASSO 的表达矩阵), 导致 SVM.geneExp.txt 装的是 LASSO 结果。
 write.table(svmexp, file="SVM.geneExp.txt", sep="\t", quote=F, row.names=T, col.names=T)

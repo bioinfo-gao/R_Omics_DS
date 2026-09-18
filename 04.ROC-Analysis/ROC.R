@@ -1,3 +1,11 @@
+# 时间依赖 ROC 筛选: 对每个基因算 5 年 AUC, 保留达标者
+#
+# 输入: surSigExp.txt (来自 03.Survival)
+# 输出: ROC.xls, rocSigExp.txt (供 06_clinical / 70.Clinical_Correlation_Screening 使用),
+#       以及 <gene>.ROC.pdf
+#
+# ⚠ 文件末尾那段多时点 ROC 目前是坏的, 见第 65 行; 原作者在第 64 行也已注明。
+
 # ERROR: dependency 'MASS' is not available for package 'doBy'
 # ERROR: dependency 'TH.data' is not available for package 'multcomp'
 # ERROR: dependencies 'MASS', 'doBy' are not available for package 'pbkrtest'
@@ -13,6 +21,7 @@
 # ==> Ctrl + Delete    delete a word 
 # ==> Ctrl+K Ctrl+S  Search for the command "Delete All Right" in the Keyboard Shortcuts editor 
 # ==> Ctrl+ Alt + x  delete all Right
+# ⚠ 下面 5 行 install.packages 未被注释: source 本文件会触发联网安装。缺包时再手动执行。
 install.packages("survivalROC")
 install.packages("survminer", dependencies = TRUE)
 install.packages("doBy", dependencies = TRUE)
@@ -26,6 +35,7 @@ library(timeROC)
 
 setwd("C:\\Users\\zhen-\\Code\\R_code\\R_For_DS_Omics\\04.ROC-Analysis")                     
 
+# ⚠ rocFilter=0 意味着 AUC>0 即通过 —— 实际上不做任何过滤, 所有基因都会进 sigGenes
 rocFilter=0                                                                  
 rt=read.table("surSigExp.txt",header=T,sep="\t",check.names=F,row.names=1)   
 
@@ -33,7 +43,9 @@ outTab=data.frame()
 
 sigGenes=c("futime","fustat")
 
+# ⚠ 这是一句交互式帮助调用, 属调试残留
 ?timeROC
+# 3:ncol 按位置取基因列, 依赖 futime/fustat 恰在前两列
 for(i in colnames(rt[,3:ncol(rt)])){
 	   roc=timeROC(T=rt$futime, 
 	                   delta=rt$fustat, 
@@ -62,6 +74,10 @@ gene
 dim(rt)
 
 # this sentence is WRONG, the next script has details 
+# ⚠ 这里用的是 rt$time / rt$event, 但 rt 的列名是 futime / fustat,
+#   两者都会取到 NULL, timeROC 无法运行 —— 与上一行原注释所说一致。
+#   正确写法是 T=rt$futime, delta=rt$fustat。
+#   未自动修改: 这段多时点 ROC 的目标基因(colnames(rt)[3])也需要你确认。
 ROC_rt=timeROC(T=rt$time, delta=rt$event,
                marker=rt[,gene], cause=1,
                weighting='aalen',

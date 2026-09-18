@@ -6,7 +6,7 @@
 # 输出: TCGA_limmaTab.xls / TCGA_difflab.xls / geo_deg_all.txt / geo_upanddown.csv
 #       TCGAandGEO_venn.pdf / TCGAandGEO_Genes.txt / TCGA_deg_exp.csv / GEO_deg_exp.csv
 #
-# ⚠ 两套数据的 logFC 正负号定义相反, 详见下方 makeContrasts 与 coef=2 两处注释
+# 两套数据的 logFC 方向已统一为「肿瘤 vs 正常」(logFC>0 = 肿瘤中更高)
 
 library(venn) 
 library(VennDiagram)
@@ -53,9 +53,9 @@ class <- c(rep("con",conNum),rep("treat",treatNum))
 design <- model.matrix(~factor(class)+0)
 colnames(design) <- c("con","treat")
 df.fit <- lmFit(rt,design)
-# ⚠ 方向: con - treat = 正常 - 肿瘤, 故 logFC > 0 表示在【正常】中更高。
-#   这与下面 GEO 部分的方向相反, 见 coef=2 处。
-df.matrix<- makeContrasts(con - treat,levels=design)
+# 方向: treat - con = 肿瘤 - 正常, 故 logFC > 0 表示在【肿瘤】中更高,
+# 与下面 GEO 部分 coef=2 一致(原先两边相反, 已统一)。
+df.matrix<- makeContrasts(treat - con,levels=design)
 fit<- contrasts.fit(df.fit,df.matrix)
 fit2 <- eBayes(fit)
 allDiff=topTable(fit2,adjust='fdr',n=Inf) 
@@ -83,10 +83,9 @@ group1_geo=as.data.frame(group_geo[,2:ncol(group_geo)])
 rownames(group1_geo)=group_geo[,1]
 colnames(group1_geo)="groups"
 group1_geo_list=factor(group1_geo$groups,levels = c("N","T"))
-# ⚠ levels=c("N","T") 令 N 为参照, coef=2 取的是 T vs N,
-#   故 GEO 的 logFC > 0 表示在【肿瘤】中更高 —— 与上面 TCGA 正好相反。
-#   下游取交集只用 |logFC| 阈值, 方向被忽略, 所以韦恩图是「方向无关」的交集。
-#   若要方向一致的共同 DEG, 必须先把其中一套的 logFC 取反再比较。
+# levels=c("N","T") 令 N 为参照, coef=2 取 T vs N, logFC>0 = 肿瘤中更高, 已与 TCGA 统一。
+# ⚠ 注意下游取交集仍只用 |logFC| 阈值, 方向未参与筛选;
+#   若要「同向」的共同 DEG, 需按 logFC 正负分开再取交集。
 design=model.matrix(~group1_geo_list)
 fit=lmFit(data2_geo,design)
 fit=eBayes(fit)

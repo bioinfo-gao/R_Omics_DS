@@ -53,7 +53,7 @@ VlnPlot(sce,features = c("nFeature_RNA","nCount_RNA","mt_percent","HB_percent"),
 
 #table(GSE163558$orig.ident)
 
-save(sce,file = "质控.Rdata")
+save(sce,file = "QC.Rdata")
 
 
 ####标准化归一化以及降维一步到位####

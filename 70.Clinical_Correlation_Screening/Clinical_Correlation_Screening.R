@@ -9,7 +9,7 @@
 
 #设置工作目录
 # ⚠ setwd("") 会直接报错, 运行前必须填上真实路径
-setwd("")  
+# setwd("")   # 原为空字符串会直接报错; 填入真实路径后再取消注释  
 
 #读取表达数据文件
 exp=read.table("rocSigExp.txt",sep="\t",header=T,check.names=F,row.names=1)     
@@ -41,7 +41,7 @@ for(i in colnames(exp)){
 #   kruskal.test 随后按【字典序】而非数值大小排秩 —— 不报错、不告警, 但 p 值是错的。
 #   实测: expr=c(2,30,400,3,40,100) 分两组, 本写法 p=0.5127, 正确写法 p=0.8273。
 #   正确写法: rt1 <- data.frame(expression=exp[,i], clinical=cli[,clinical])
-#   本文件未作改动, 由你确认后再改。
+#   已修复为 data.frame。
     rt1=data.frame(expression=exp[,i],clinical=cli[,clinical])
     cliTest<-kruskal.test(expression ~ clinical, data = rt1)
     pValue=cliTest$p.value

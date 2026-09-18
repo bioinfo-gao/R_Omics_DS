@@ -1,13 +1,14 @@
 # 机器学习模型预测结果的 ROC 曲线
 #
-# 输入: 机器学习预测结果.txt —— 注意本仓库内没有任何脚本生成该文件, 需自行准备;
-#       文件名仍是中文, 与仓库其余已英文化的命名不一致。
+# 输入: ML_prediction.txt —— 本仓库内没有任何脚本生成该文件, 需自行准备。
+#       ⚠ 原文件名为中文「机器学习预测结果.txt」, 已改为 ASCII;
+#         若你手上已有该数据文件, 需同步改名后本脚本才能读到。
 # 输出: ROC.pdf
 
 
 
 library(pROC)                   
-inputFile="机器学习预测结果.txt"      
+inputFile="ML_prediction.txt"      
 
 
 
@@ -26,7 +27,8 @@ y=ifelse(y=="con", 0, 1)
 #      所以 AUC 永远不低于 0.5, 不能据此说明模型有判别力;
 #   3) 图标题写的是 Train group —— 这是训练集内部的 ROC, 不是验证性能。
 roc1=roc(y, as.numeric(rt[,2]))
-# ⚠ bootstrap 置信区间未设 set.seed, 每次运行 95% CI 都会不同
+# bootstrap 置信区间已固定种子, 可复现
+set.seed(123)   # bootstrap 抽样固定, 保证 95% CI 可复现
 ci1=ci.auc(roc1, method="bootstrap")
 ciVec=as.numeric(ci1)
 pdf(file="ROC.pdf", width=5, height=5)

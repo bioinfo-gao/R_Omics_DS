@@ -9,9 +9,11 @@
 library("glmnet")
 library("survival")
 
+set.seed(123)   # cv.glmnet 的折划分是随机的; 不设种子则每次入选基因都可能不同
+
 ###设置工作目录
 # ⚠ setwd("") 会直接报错(cannot change working directory), 运行前必须填上真实路径
-setwd("")    
+# setwd("")   # 原为空字符串会直接报错; 填入真实路径后再取消注释    
 
 ###读取文件
 rt=read.table("UniSigExp.txt",header=T,sep="\t",row.names=1)            
@@ -22,8 +24,7 @@ rt$futime=rt$futime/365
 x=as.matrix(rt[,c(3:ncol(rt))])
 y=data.matrix(Surv(rt$futime,rt$fustat))
 fit=glmnet(x, y, family = "cox", maxit = 1000)
-# ⚠ cv.glmnet 的交叉验证折划分是随机的, 此处未 set.seed,
-#   故每次运行得到的 lambda.min 与入选基因都可能不同 —— 结果不可复现。
+# 折划分已由文件顶部的 set.seed(123) 固定, 结果可复现。
 # ⚠ maxit=1000 远低于 glmnet 默认的 1e5, 可能未收敛就停止(只给 warning 不报错)。
 cvfit=cv.glmnet(x, y, family="cox", maxit = 1000)
 

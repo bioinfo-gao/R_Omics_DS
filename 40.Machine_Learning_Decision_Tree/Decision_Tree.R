@@ -4,13 +4,12 @@
 # 输出: 无落盘文件 —— visTree 产生的是交互式 HTML widget, 只在 Viewer 里显示。
 #       要留存需 visSave(widget, "tree.html") 或改用 rpart.plot 输出 pdf。
 
-# ⚠ 下面 5 行 install.packages 没有被注释掉: 直接 source 本文件会触发联网安装、
-#   弹出 CRAN 镜像选择、并可能覆盖已装版本。建议改成注释, 只在需要时手动执行。
-install.packages("VIM")
-install.packages("Metrics")
-install.packages("ggpol")
-install.packages("visNetwork")
-install.packages("sparkline")
+# 依赖安装已注释: 直接 source 本文件不再触发联网安装与 CRAN 镜像选择。缺包时手动执行。
+# install.packages("VIM")
+# install.packages("Metrics")
+# install.packages("ggpol")
+# install.packages("visNetwork")
+# install.packages("sparkline")
 #本代码未设置验证集
 library(readr)
 library(VIM)
@@ -58,10 +57,10 @@ mod1$cp
 #Complexity parameter是决策树每一次分裂时候最小的提升量，用于平衡模型精确度于复杂度
 plotcp(mod1)
 #模型优化（取最低CP值）
-# ⚠ cp=0.00028 是从上一次 plotcp 的结果里【手抄】进来的常数, 不是程序算出来的。
-#   换数据集后这个值不再对应最小交叉验证误差, 但不会有任何报错。
-#   稳妥写法: cp <- mod1$cptable[which.min(mod1$cptable[,"xerror"]), "CP"]
-mod1<-rpart(as.factor(group)~.,data = data2,method = "class",cp=0.00028)
+# cp 由上一步的 cptable 自动取「交叉验证误差 xerror 最小」处, 不再手抄常数。
+# (原为硬编码 cp=0.00028, 换数据集即失效且不报错)
+bestcp <- mod1$cptable[which.min(mod1$cptable[,"xerror"]), "CP"]
+mod1<-rpart(as.factor(group)~.,data = data2,method = "class",cp=bestcp)
 # ⚠ 全部数据既用于建树也用于看效果, 文件开头也注明了「本代码未设置验证集」,
 #   因此这棵树的表现不能当作泛化能力的证据。
 visTree(mod1,main = "Decision Tree",height = "600px",

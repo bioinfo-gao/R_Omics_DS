@@ -2,7 +2,7 @@
 #
 # 输入: data_orign_rt   行=样本, 列 1=futime 2=fustat 3+=基因表达
 #       data_orign_cli  行=样本, 列=临床变量 (供独立预后分析)
-# 输出: 每成功一轮建一个 "第N次循环_结果/" 目录, 内含 cvfit/lambda/ROC 三张 pdf
+# 输出: 每成功一轮建一个 "loop_N_result/" 目录, 内含 cvfit/lambda/ROC 三张 pdf
 #       与 lasso_geneCoef / lasso_Risk / UniCox / UniSigExp 四个 txt
 #
 # ⚠ 本函数依赖 5 个全局变量而非参数, 调用前必须先在环境中定义:
@@ -18,6 +18,7 @@ loop=loopTime
   #   与入选基因不同 —— 本质是在反复碰运气找一个好划分。全流程不可复现。
 for(z in 1:loop){
   saytimes=paste0("第",z,"次循环")
+  tag=paste0("loop_",z)   # 文件/目录名一律用 ASCII, 避免再次产生中文路径
   setwd(workspace)
   rt=data_orign_rt
   cli=data_orign_cli
@@ -119,21 +120,21 @@ for(z in 1:loop){
             # 注意: 这里 setwd 进结果子目录后本分支内不再切回,
             # 靠下一轮开头的 setwd(workspace) 复位; 中途报错会把后续输出写错位置。
             setwd(workspace)
-            dir.create(paste0(saytimes,"_结果"))
-            setwd(paste0(saytimes,"_结果"))
+            dir.create(paste0(tag,"_result"))
+            setwd(paste0(tag,"_result"))
             print(paste0(saytimes,"【###符合条件，输出结果，同时递增阈值###】【###符合条件，输出结，同时递增阈值果###】【###符合条件，输出结果，同时递增阈值###】"))
             print(paste0("AUC阈值增加为_",mod_AUC))
-            pdf(file=paste0(saytimes,"_cvfit.pdf"))
+            pdf(file=paste0(tag,"_cvfit.pdf"))
             plot(cvfit)
             dev.off()
-            pdf(file = paste0(saytimes,"_lambda.pdf"))
+            pdf(file = paste0(tag,"_lambda.pdf"))
             plot(fit, xvar = "lambda", label = TRUE)
             dev.off()
-            write.table(geneCoef,file=paste0(saytimes,"_lasso_geneCoef.txt"),sep="\t",quote=F,row.names=F)
-            write.table(cbind(id=rownames(lasso_outTab),lasso_outTab),file=paste0(saytimes,"_lasso_Risk.txt"),sep="\t",quote=F,row.names=F)
+            write.table(geneCoef,file=paste0(tag,"_lasso_geneCoef.txt"),sep="\t",quote=F,row.names=F)
+            write.table(cbind(id=rownames(lasso_outTab),lasso_outTab),file=paste0(tag,"_lasso_Risk.txt"),sep="\t",quote=F,row.names=F)
           
-            write.table(UniCox_outTab,file=paste0(saytimes,"_UniCox.txt"),sep="\t",row.names=F,quote=F)
-            write.table(uniSigExp_out,file=paste0(saytimes,"_UniSigExp.txt"),sep="\t",row.names=F,quote=F)
+            write.table(UniCox_outTab,file=paste0(tag,"_UniCox.txt"),sep="\t",row.names=F,quote=F)
+            write.table(uniSigExp_out,file=paste0(tag,"_UniSigExp.txt"),sep="\t",row.names=F,quote=F)
             unicox_rt=UniCox_outTab[,2:ncol(UniCox_outTab)]
             unicox_rt=as.matrix(unicox_rt)
             rownames(unicox_rt)=UniCox_outTab$id
@@ -148,7 +149,7 @@ for(z in 1:loop){
             Hazard.ratio <- paste0(hr,"(",hrLow,"-",hrHigh,")")
             pVal <- ifelse(unicox_rt$pvalue<0.001, "<0.001", sprintf("%.3f", unicox_rt$pvalue))
             bioCol=rainbow(3, s=0.9, v=0.9)
-            pdf(file=paste0(saytimes,"_ROC.pdf"), width=5, height=5)
+            pdf(file=paste0(tag,"_ROC.pdf"), width=5, height=5)
             plot(ROC_lasso,time=1,col=bioCol[1],title=FALSE,lwd=2)
             plot(ROC_lasso,time=3,col=bioCol[2],add=TRUE,title=FALSE,lwd=2)
             plot(ROC_lasso,time=5,col=bioCol[3],add=TRUE,title=FALSE,lwd=2)

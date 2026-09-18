@@ -23,7 +23,7 @@ cli$futime=cli$futime/365
 #   实测: "TCGA-AB-1234-01A-11R-XXXX" -> "TCGA-AB-1234\" (末尾多一个反斜杠),
 #   而去掉结尾的 \\ 才得到期望的 "TCGA-AB-1234"。
 #   后果: 下一行 intersect(colnames(rt), rownames(cli)) 匹配到 0 个样本,
-#   sameSample 为空 -> rt 变成 0 行 -> 后续全部失效。本文件未作改动, 由你确认后再改。
+#   sameSample 为空 -> rt 变成 0 行 -> 后续全部失效。已修复。
 colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", colnames(rt))
 sameSample=intersect(colnames(rt),rownames(cli))
 rt=t(rt)
@@ -48,7 +48,7 @@ loopTime=100
 #开始循环
 # FIXME ⚠ 仓库里这个文件已不叫 "主代码.R" —— 它长期以乱码名 "╓≈┤·┬δ.R" 存在,
 #   现已重命名为 main.R。因此这一行在改名前就已经 source 不到, 现在应改为 source("main.R")。
-#   本文件未作改动, 由你确认后再改。
+#   已修复。
 source("main.R")
 XXD_lasso_MOD_loop(data_orign_rt,data_orign_cli)
 

@@ -111,7 +111,8 @@ dev.off()
 #   后果: edgerOut.xls / diffSig.xls / up.xls / down.xls / normalizeExp.txt /
 #         diffmRNAExp.txt 以及最后的箱线图, 全都是在「样本1 counts×0.05、
 #         样本2 counts×5」的数据上算出来的, 不是真实表达量。
-#   正确写法应为 y <- estimateCommonDisp(y) —— 但本文件未作改动, 由你确认后再改。
+#   已修复为 y <- estimateCommonDisp(y)。
+#   ⚠ 本目录下此前产出的 .xls/.txt 都是在污染数据上算的, 应作废重跑。
 y <- estimateCommonDisp(y)#计算普通的离散度
 y <- estimateTagwiseDisp(y)#计算基因或miRNA范围内的离散度
 

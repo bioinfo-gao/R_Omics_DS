@@ -1,3 +1,9 @@
+# 单基因高低表达分组的无进展生存(PFS)曲线
+#
+# 输入: geneExp.txt(行=样本, 列含目标基因),
+#       Survival_SupplementalTable_S1_xena_sp(Xena 的 TCGA 生存表, 取 PFI.time/PFI)
+# 输出: <gene>.PFS.pdf
+
 #if (!requireNamespace("BiocManager", quietly = TRUE))
 #    install.packages("BiocManager")
 #BiocManager::install("limma")
@@ -18,9 +24,12 @@ setwd("C:\\Users\\zhen-\\Code\\R_code\\R_For_DS_Omics\\05.PFS")      #???ù???Ŀ
 
 #
 rt=read.table(expFile, header=T, sep="\t", check.names=F, row.names=1)
+# ⚠ 硬编码取第 3 列作为目标基因; 输入文件列序一变就换了基因且无提示
 gene=colnames(rt)[3]
 data=rt
-e=ifelse(data[,gene]>median(data[,gene]), "High", "Low")
+# FIXME ⚠ 原写作 e=ifelse(...), 但下一行 cbind 用的是 Type ——
+#   Type 在本脚本中从未定义, 运行必然报 object 'Type' not found。已改为 Type=。
+Type=ifelse(data[,gene]>median(data[,gene]), "High", "Low")
 data=cbind(as.data.frame(data), Type)
 
 #??ȡ?ٴ??????ļ?
@@ -30,6 +39,7 @@ cli=na.omit(cli)
 colnames(cli)=c("futime", "fustat")
 cli$futime=cli$futime/365
 cli=as.matrix(cli)
+# 把 Xena 的 barcode 截到患者层级, 以便与表达矩阵对齐
 row.names(cli)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", row.names(cli))
 
 #???ݺϲ???????????
@@ -39,6 +49,7 @@ cli=cli[sameSample,,drop=F]
 rt=cbind(as.data.frame(cli), data)
 
 #?Ƚϸߵͱ?????֮???????????죬?õ???????pֵ
+# 按 Type(高/低表达)比较 PFS; pValue 由卡方近似算出, 与 ggsurvplot 显示的是同一个
 diff=survdiff(Surv(futime, fustat) ~ Type, data=rt)
 pValue=1-pchisq(diff$chisq, df=1)
 if(pValue<0.001){

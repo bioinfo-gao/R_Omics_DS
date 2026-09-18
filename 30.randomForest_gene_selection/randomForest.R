@@ -2,7 +2,7 @@
 #
 # 输入: diffGeneExp.txt 行=基因, 列=样本(样本名需含 5 段以 - 分隔的字段, 见下)
 # 输出: Random_Forest.pdf(误差曲线) / GeneIm.pdf(重要性) /
-#       随机森林Genes.txt(入选基因) / imGeneExp.txt(入选基因表达)
+#       randomForest_Genes.txt(入选基因) / imGeneExp.txt(入选基因表达)
 
 # install.packages("randomForest")
 #引用包
@@ -26,9 +26,8 @@ group=gsub("(.*)\\-(.*)\\-(.*)\\-(.*)\\-(.*)", "\\5", row.names(data))
 #随机森林树
 
 rf=randomForest(as.factor(group)~., data=data, ntree=1000)
-# ⚠ 这里运行时写出的仍是中文名 森林.pdf; 仓库里同名文件已改名为 Random_Forest.pdf,
-#   两者现在对不上。要保持一致需把本行也改成 Random_Forest.pdf。
-pdf(file="森林.pdf", width=6, height=6)
+# 输出文件名已与仓库中已改名的 Random_Forest.pdf 对齐
+pdf(file="Random_Forest.pdf", width=6, height=6)
 plot(rf, main="Random forest", lwd=2)
 dev.off()
 
@@ -55,7 +54,7 @@ rfGenes=importance[order(importance[,"MeanDecreaseGini"], decreasing = TRUE),]
 #     所以 names(rfGenes[...]) 才能取到基因名; 若改成 importance=TRUE 这行会失效。
 rfGenes=names(rfGenes[rfGenes>2])     #挑选重要性评分大于2的基因
 #rfGenes=names(rfGenes[1:30])         #挑选重要性评分最高的30个基因
-write.table(rfGenes, file="随机森林Genes.txt", sep="\t", quote=F, col.names=F, row.names=F)
+write.table(rfGenes, file="randomForest_Genes.txt", sep="\t", quote=F, col.names=F, row.names=F)
 
 #输出重要基因的表达量
 sigExp=t(data[,rfGenes])

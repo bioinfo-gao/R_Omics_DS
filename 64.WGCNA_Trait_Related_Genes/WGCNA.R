@@ -1,6 +1,6 @@
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-setwd("C:/Users/zhen-/Code/R_code/R_Omics_DS/64.WGCNA筛选表型相关基因")
+setwd("C:/Users/zhen-/Code/R_code/R_Omics_DS/64.WGCNA_Trait_Related_Genes")
 BiocManager::install("GO.db")
 
 library("GO.db")

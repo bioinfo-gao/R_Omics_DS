@@ -1,5 +1,5 @@
 # 设置工作目录
-setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/26.免疫治疗分析")
+setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/26.Immunotherapy_Analysis")
 
 # 加载所需的 R 包
 # limma 包用于处理矩阵和去重复样本（avereps函数）

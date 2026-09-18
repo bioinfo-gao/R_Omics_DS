@@ -21,7 +21,7 @@ geneExp=data[sameGene,]
 
 #????????
 outTab=rbind(ID=colnames(geneExp),geneExp)
-write.table(outTab, file="铜????????????量.txt", sep="\t", quote=F, col.names=F)
+write.table(outTab, file="cuproptosis_gene_exp.txt", sep="\t", quote=F, col.names=F)
 
 #####??????????
 group=sapply(strsplit(colnames(data),"\\-"),"[",4)
@@ -33,7 +33,7 @@ treatNum=length(group[group==0])     #????????Ʒ??Ŀ
 sampleType=c(rep(1,conNum), rep(2,treatNum))
 
 
-rt1=rt1=read.table("铜????????????量.txt", header=T, sep="\t", check.names=F)
+rt1=read.table("cuproptosis_gene_exp.txt", header=T, sep="\t", check.names=F)
 rt1=as.matrix(rt1)
 rownames(rt1)=rt1[,1]
 exp1=rt1[,2:ncol(rt1)]
