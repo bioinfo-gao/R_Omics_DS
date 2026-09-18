@@ -13,6 +13,7 @@
 | 2026-09-18 ④ | `afecbab` | 39 个源文件 GBK→UTF-8 重编码 | 还原 277 行注释 | 否，纯 ASCII 行断言逐字节未变 |
 | 2026-09-18 ⑤ | `0d0a7c3` | 15 个分析脚本加注释 | +263 行注释 | 否，只插入整行注释 |
 | 2026-09-18 ⑥ | 7 个 commit | 修复 7 处已确认缺陷 | 10 行代码 | **是**，见下方缺陷表 |
+| 2026-09-18 ⑦ | `6f8c4d2` | 再修 12 处缺陷 + 再注释 4 个脚本 | 21 个文件 | **是** |
 
 ## 三条命令自查（复制即可跑，预期输出已实测）
 
@@ -278,3 +279,56 @@ for f in $(git ls-tree -r --name-only HEAD | grep -i '\.r$'); do
   Rscript -e 'q(status=tryCatch({parse("/tmp/_chk.R");0}, error=function(e)1))' || echo "FAIL $f"
 done
 ```
+
+---
+
+## 第 ⑦ 轮 —— 把此前只标不改的缺陷全部修掉（commit `6f8c4d2`）
+
+一次提交，21 个文件。代码改动与注释混在同一批文件里，无法按类型拆分，故合为一个 commit。
+
+### 新修复的缺陷
+
+| 文件 | 问题 | 判据 |
+| :--- | :---: | :---: |
+| `29.SVM_gene_selection/SVM.R` | 三处连锁：`y` 是数值 1/2 使 rfe 按**回归**处理；`methods=`（多一个 s）被 `...` 吞掉，`caret:::train.default` 默认 `method="rf"`，**实际跑的是随机森林**；选优指标因此取的是 RMSE 最小 | 实测 caret 默认值；现改为 factor y + `method=` + Accuracy 最大 |
+| `03.Survival/3_survival.R` | `if(class(x)=="matrix")` 在 R ≥ 4.2 **直接报错**（`class(matrix)` 返回两个元素），循环跑不完 | **R 4.5.2 实测**：`the condition has length > 1`。改为 `is.matrix()` |
+| `05.Progression Free Survival/PFS.R` | 赋值给 `e` 却使用 `Type`，`Type` 从未定义 | 变量引用链；改为 `Type=` |
+| `59.GEO_TCGA_Common_DEGs` | TCGA 用 `con-treat`、GEO 用 `coef=2`，logFC 正负号定义相反却直接取交集 | 已统一为「肿瘤 vs 正常」 |
+| `40.Decision_Tree.R` | `cp=0.00028` 是手抄常数；5 行 `install.packages` 未注释，source 即联网安装 | 改为由 `cptable` 取 xerror 最小；安装行注释掉 |
+| `27.Cuproptosis.../cu.R` | 文件名字面量含不可还原的 `?`（Windows 上非法） | 改为 `cuproptosis_gene_exp.txt`，读写两处同步 |
+| `70.*.R` `71.*.R` | `setwd("")` 直接报错 | 注释掉并说明需填真实路径 |
+| `46` `60` `71` `34` | `cv.glmnet` / `ci.auc(bootstrap)` 未设种子，结果不可复现 | 加 `set.seed(123)` |
+| `26`×2 `64` | `setwd` 仍指向改名前的中文目录 | 更新为新目录名 |
+| `30` `31` `34` `76` `AA` | 脚本**运行时写出中文文件名**（`森林.pdf`/`基因评分.txt`/`质控.Rdata`/`第N次循环_结果/` 等），一跑就会把中文名重新带回仓库 | 全部改为 ASCII |
+
+### 新增注释的 4 个脚本
+
+`03.Survival/3_survival.R`、`04.ROC-Analysis/ROC.R`、
+`05.Progression Free Survival/PFS.R`、`46.Lasso_Regression_Model/Lasso_Regression_Model.R`。
+
+其中 `04.ROC-Analysis/ROC.R` 末尾的多时点 ROC **仍是坏的**（用 `rt$time`/`rt$event`，而列名是
+`futime`/`fustat`）——原作者第 64 行已注明「this sentence is WRONG」。未自动修复，因为那段
+要绘制哪个基因也需要你确认。
+
+### 一个值得记下的负面结果：自动扫描抓不到这些缺陷
+
+本轮尝试用 11 类正则模式在全仓库自动找缺陷，得到 **261 个候选，真正有效的只有 1 个**
+（`46.Lasso` 未设种子）。误报的典型：`install.packages` 大多出现在本来就用于装包的工具脚本里；
+`cbind` 命中的几乎都是纯数值拼接；`?fn`、`rm(list=ls())` 在教学脚本里是有意为之。
+
+**已找到的 25 处缺陷全部来自逐行阅读，没有一处是模式匹配发现的。** 原因是它们都是语义错误——
+用错了变量、方向定义相反、把演示用的污染对象喂给了分析、参数名多一个字母——
+在语法层面全都合法。这条结论决定了剩余文件只能靠精读，无法靠扫描加速。
+
+## 当前进度
+
+| 项 | 状态 |
+| :--- | :---: |
+| 文件名/目录名英文化 | ✅ 完成 |
+| 源文件编码修复 | ✅ 完成（39 个文件，277 行注释还原） |
+| 已发现缺陷的修复 | ✅ 完成（25 处；另有 3 处按判断只标不改） |
+| 脚本注释 | ⏳ **19 / 109**，剩余 90 个 |
+
+仍**只标不改**的 3 处：`04.ROC-Analysis/ROC.R` 末尾的多时点 ROC、
+`76.Model_Loop/main.R` 的 AUC 棘轮（方法学问题，非一行可修）、
+以及多处「未做多重检验校正」（属口径选择）。
