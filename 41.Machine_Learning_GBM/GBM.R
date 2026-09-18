@@ -1,3 +1,9 @@
+# GBM (梯度提升树) 特征基因重要性
+#
+# 输入: diffGeneExp.txt 行=基因, 列=样本(样本名形如 <前缀>_<组别>)
+# 输出: 无落盘文件 —— 最后的 ggplot 只打印到默认设备, 未 ggsave。
+#       第 45 行原注释也说明了这是「把结果复制出来」的手工流程。
+
 library(readr)
 library(VIM)
 library(caret)
@@ -26,14 +32,18 @@ library(gbm)
 library(caret)
 data<-read.table(file="diffGeneExp.txt",sep = "\t",header = T,check.names=F, row.names=1)
 data=t(data)
+# ⚠ 同 40: 用下划线取组别; 不匹配时会静默退化成「每样本一类」
 group=gsub("(.*)\\_(.*)", "\\2", row.names(data))
 
 set.seed(1234)
+# ⚠ metric 与下一行的 myControl 在本文件中从未被使用(下面用的是 fitControl),
+#   且 RMSE 是回归指标 —— 这两行是从回归模板抄来的残留, 与实际的分类任务无关。
 metric <- "RMSE"
 myControl <- trainControl(method="cv", number=5)
 
 # Fitting model
 fitControl <- trainControl( method = "repeatedcv", number = 4, repeats = 4)
+# y 传的是 factor, 故 train() 按分类处理, 选优指标是 Accuracy 而非上面写的 RMSE
 fit <- train(x=data,y=as.factor(group),  method = "gbm", trControl = fitControl,verbose = FALSE)
 
 
