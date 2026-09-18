@@ -24,7 +24,7 @@ cli$futime=cli$futime/365
 #   而去掉结尾的 \\ 才得到期望的 "TCGA-AB-1234"。
 #   后果: 下一行 intersect(colnames(rt), rownames(cli)) 匹配到 0 个样本,
 #   sameSample 为空 -> rt 变成 0 行 -> 后续全部失效。本文件未作改动, 由你确认后再改。
-colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\", colnames(rt))
+colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", colnames(rt))
 sameSample=intersect(colnames(rt),rownames(cli))
 rt=t(rt)
 rt=rt[sameSample,,drop=F]
