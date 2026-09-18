@@ -29,10 +29,10 @@ exp_data_T = tumorData%>% dplyr::select(str_which(colnames(.), "-01A"))
 tumorData=cbind(exp_data_T)
 data=t(avereps(tumorData))
 rownames(data)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", rownames(data))
-Èread.table(cliFile, header=T, sep="\t", check.names=F, row.names=1)
+cli=read.table(cliFile, header=T, sep="\t", check.names=F, row.names=1)
 cli$time=cli$time/365
 
-#???eSample=intersect(row.names(data), row.names(cli))
+sameSample=intersect(row.names(data), row.names(cli))
 data=data[sameSample,,drop=F]
 cli=cli[sameSample,,drop=F]
 rt=cbind(cli, data)
