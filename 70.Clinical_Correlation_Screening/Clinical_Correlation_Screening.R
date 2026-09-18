@@ -42,7 +42,7 @@ for(i in colnames(exp)){
 #   实测: expr=c(2,30,400,3,40,100) 分两组, 本写法 p=0.5127, 正确写法 p=0.8273。
 #   正确写法: rt1 <- data.frame(expression=exp[,i], clinical=cli[,clinical])
 #   本文件未作改动, 由你确认后再改。
-    rt1=cbind(expression=exp[,i],clinical=cli[,clinical])
+    rt1=data.frame(expression=exp[,i],clinical=cli[,clinical])
     cliTest<-kruskal.test(expression ~ clinical, data = rt1)
     pValue=cliTest$p.value
     clinicalPvalVector=c(clinicalPvalVector,pValue)
