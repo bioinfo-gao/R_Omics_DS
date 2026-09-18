@@ -10,6 +10,9 @@
 | 2026-09-18 ① | `d2872ec` | 乱码/中文路径改英文 | 73 条路径（32 个目录 + 33 个文件名） | 否，全部 `R100` 纯重命名 |
 | 2026-09-18 ② | `2633feb` | `Multivariate_Cox.R` 加注释 | 1 个文件，+24 行 | 否，代码行逐字未改 |
 | 2026-09-18 ③ | 本文件 | 新增 `AI_EDIT_LOG.md` | 1 个新文件 | — |
+| 2026-09-18 ④ | `afecbab` | 39 个源文件 GBK→UTF-8 重编码 | 还原 277 行注释 | 否，纯 ASCII 行断言逐字节未变 |
+| 2026-09-18 ⑤ | `0d0a7c3` | 15 个分析脚本加注释 | +263 行注释 | 否，只插入整行注释 |
+| 2026-09-18 ⑥ | 6 个 commit | 修复 6 处已确认缺陷 | 7 行代码 | **是**，见下方缺陷表 |
 
 ## 三条命令自查（复制即可跑，预期输出已实测）
 
@@ -175,3 +178,75 @@ git -c core.quotePath=false ls-tree -r --name-only 2633feb | grep -P '[^\x00-\x7
 | 远端复核（重拉 tree API） | 5574 条目、3662 文件，非 ASCII 159 → 53 ✅ |
 | 残留 53 条是否全属 `®` 组 | ✅ |
 
+
+---
+
+## 第 ④ 轮 — 源文件编码修复（commit `afecbab`）
+
+仓库里 39 个 `.R/.Rmd/.pl` 文件的注释以 **GBK 字节**存储，在 UTF-8 环境下读成乱码。
+本轮逐行降级解码（UTF-8 → GBK → gb18030）并统一写回 UTF-8，**还原了 277 行此前读不了的注释**。
+
+**安全守卫**：换编码前后**纯 ASCII 行必须逐字节不变**，并且要求整行的 ASCII 骨架一致。
+这道守卫拦下了 1 行 —— `22_Immu_survival.R:32`，那里一个孤立高位字节会把
+`read.table` 的 `r` 吞进一个汉字，变成 `萺ead.table`。该行被原样保留，改由第 ⑥ 轮人工修复。
+
+仍有 14 个文件的注释是**不可还原**的：它们早已被有损转换成 `?????`，原文已不存在。
+这些注释保持原样未删，等待逐步用新注释替代。
+
+## 第 ⑤ 轮 — 15 个分析脚本加注释（commit `0d0a7c3`）
+
+注释规则：**只插入整行注释，绝不修改任何已有行**。每个文件都跑过自净——
+把插入的行删掉后必须与原文逐字节相同。因此"代码未改"是机械可证的。
+
+每个文件的注释包含：文件头（目的 / 输入列序契约 / 输出 / 上下游衔接）+ 关键位置的陷阱说明。
+
+已完成的 15 个：
+
+| 文件 | 新增注释行 |
+| :--- | :---: |
+| `13.edgeR/edgeR.R` | 28 |
+| `14.DESeq_difference/DESeq2.R` | 20 |
+| `29.SVM_gene_selection/SVM.R` | 21 |
+| `30.randomForest_gene_selection/randomForest.R` | 18 |
+| `28.lasso_gene_selection/lasso.R` | 11 |
+| `34.Machine_Learning_Model_ROC/Machine_Learning_ROC.R` | 16 |
+| `40.Machine_Learning_Decision_Tree/Decision_Tree.R` | 17 |
+| `41.Machine_Learning_GBM/GBM.R` | 10 |
+| `59.GEO_TCGA_Common_DEGs/GEO_TCGA_Common_DEGs.R` | 26 |
+| `60.ROC_Diagnostic_Curve/ROC_Diagnostic_Curve.R` | 15 |
+| `62.GEO_PCA_Scatter_Plot/GEO_PCA_Scatter.R` | 17 |
+| `70.Clinical_Correlation_Screening/Clinical_Correlation_Screening.R` | 18 |
+| `71.Build_Lasso_Prognostic_Model/Build_Lasso_Prognostic_Model.R` | 15 |
+| `76.Model_Loop/main.R` | 33 |
+| `76.Model_Loop/Build_Lasso_Model.R` | 18 |
+
+## 第 ⑥ 轮 — 6 处已确认缺陷的修复
+
+每处一个 commit，均**只改一到两行**，可单独 revert。
+
+| commit | 文件 | 原因 | 怎么确认的 |
+| :--- | :---: | :---: | :---: |
+| `0bb8e58` | `13.edgeR/edgeR.R` | `estimateCommonDisp(y2)` → `(y)`。`y2` 是手册里为演示标准化效果而人为扭曲的对象（样本1 counts×0.05、样本2×5），被误当成分析输入，导致该脚本**全部 6 个输出文件都是错的** | 追踪 `y`/`y2` 赋值链 |
+| `fb8dcea` | `76.Model_Loop/Build_Lasso_Model.R` | 去掉 `gsub` 替换串尾部的 `\\`，它会给每个列名追加一个字面反斜杠 | **实测**：得到 `TCGA-AB-1234\`，`intersect` 匹配 0 个样本 |
+| `fde751d` | 同上 | `source("主代码.R")` → `source("main.R")` | 目标文件长期以乱码名存在，该调用从未匹配过 |
+| `dd346bb` | `70.Clinical_Correlation_Screening.R` | `cbind` → `data.frame`。`cbind` 把表达量转成字符，`kruskal.test` 随之按字典序排秩 | **实测**：p=0.5127 vs 正确的 0.8273 |
+| `ab6f08a` | `29.SVM_gene_selection/SVM.R` | `lassoGene`→`featureGenes`、`lassoexp`→`svmexp`。原写法引用了 28 号脚本的变量，同一会话里会把 **LASSO 的结果写进 `SVM.geneExp.txt`** | 变量在本文件中从未定义 |
+| `dc1c2bb` | `22.Immu_cell_state_with_Survival.R` | 补回被编码事故吃掉的 `cli=`，并取消被误注释的 `sameSample=` | 后续行引用这两个变量，是唯一解 |
+
+## 已标注但**未**修改的缺陷（留给你决定）
+
+| 文件 | 问题 | 为什么没动 |
+| :--- | :---: | :---: |
+| `29.SVM_gene_selection/SVM.R` | `methods="svmRadial"` 多了个 s，被 `...` 吞掉，`caret:::train.default` 默认 `method="rf"` ⇒ **实际跑的是随机森林不是 SVM**（已实测 caret 默认值确认）；且 `y` 传的是数值 1/2，rfe 按回归处理 | 修好需连带改 `y` 与取 RMSE 的绘图行，是一串连锁改动，不属于单点修复 |
+| `59.GEO_TCGA_Common_DEGs.R` | TCGA 用 `con-treat`、GEO 用 `coef=2`，两边 logFC 正负号定义相反，却直接按 `|logFC|` 取交集 | 这是口径选择不是笔误，改法取决于你想要方向一致还是方向无关的交集 |
+| `40.Decision_Tree.R` | `cp=0.00028` 是从上一次 `plotcp` 手抄的常数，换数据集即失效 | 需要你确认是否改成按 `cptable` 自动取最小 xerror |
+| `27.Cuproptosis.../cu.R` | 文件名字面量 `"铜????????????量.txt"` 含不可还原的 `?` | Linux 下 `?` 合法，贸然改名可能孤立已存在的文件 |
+| `70.*.R` `71.*.R` | `setwd("")` 会直接报错 | 正确路径只有你知道 |
+| 多处 | `cv.glmnet` / `ci.auc(bootstrap)` 未设种子 ⇒ 结果不可复现 | 加 seed 会改变现有结果，需你确认 |
+| `76.Model_Loop/main.R` | AUC 棘轮 + 更换随机划分重试 = 在同一批数据上对检验统计量做选择 | 方法学问题，不是一行能修的 |
+
+## 进度
+
+第 ⑤ 轮的注释工作**尚未完成**：全仓库 190 个在范围内的源文件中，
+80 个原本注释密度已达标（≥0.30）不需要补，**109 个需要补，目前完成 15 个，剩余 94 个**。
+剩余清单见本轮对话，或用下面命令自行生成当前密度排名。
