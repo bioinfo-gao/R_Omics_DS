@@ -392,3 +392,72 @@ done
 | 被吞代码的还原 | ✅ 完成（17 行，扫描已覆盖全仓库） |
 | 缺陷修复 | 已修 **31** 处，另 **9** 处按判断只标不改 |
 | 脚本注释 | ⏳ **44 / 109**，剩余 65 个 |
+
+---
+
+## 第 ⑪–⑫ 轮 —— 编号分析目录 + 专题目录收尾
+
+按用户 2026-09-18 的决定，本阶段范围收窄为**编号分析目录 + 专题目录**；
+`00_All_Utilities_and_Tools` 的 39 个工具脚本与 `CC_Miami_Projects` 的 5 个历史文件**留待以后**
+（那 44 个多为绘图模板与教学代码，缺陷密度与影响都低得多）。
+
+### ⚠ 最重要的发现：三个 Perl 脚本带时间失效开关
+
+`TCGA_clinical/` 下的三个 `.pl` 都埋了这样的语句：
+
+```perl
+my @samp1e = (localtime(time));        # 变量名用数字 1 冒充字母 l
+... 正常语句 ...;  if($samp1e[5]>118){next;}
+```
+
+`localtime()[5]` 是**年份减 1900**，故 `>118` 即「2018 年之后」。
+
+| 位置 | 条件 | 行为 |
+| :--- | :---: | :---: |
+| `03.getClinical/get_clinical_from_XML.pl:61` | `[5]>118` | 每个患者都被跳过 ⇒ `clinical.txt` 只剩表头 |
+| `04.getSampleExp/get_prognosis.pl:50` | `[5]>118` | 表头解析中途跳出 ⇒ 样本选取被截断 |
+| `07.mergeClinical/mergeCinicalExp.pl:93` | `[5]>118` | `%expHash` 永远为空 ⇒ 合并结果为空 |
+| `03.getClinical:59`、`04.getSampleExp:55` | `[4]>13` | 月份索引只有 0..11，**永不触发**，属障眼法 |
+
+**这三个脚本自 2019 年起就一直在静默失效**，产出空文件或截断结果且不报任何错。
+
+语句被附在无关语句的行尾、变量名刻意仿冒、三文件重复出现 —— 不像调试残留，
+可能属于该教学材料（biowolf）的有效期/授权机制。
+
+**处理方式：完整标注，一行未改。** 是否移除涉及使用者与材料提供方的关系，
+不应由工具单方面决定。作为对照，`67.3_methods.../method3_cleanup.pl` 做同样的事、
+**没有**这类开关，已在注释中指明它是可用的替代。
+
+### 其它显著标注（均未改动代码）
+
+| 文件 | 问题 |
+| :--- | :---: |
+| `25.Mutation/2_0`、`2_2`、`2_3` | maftools 官方 vignette 原样拷贝（作者 Anand Mayakonda）；`2_0` 与 `2_2` 连标题都相同，其一很可能已过期 |
+| `25.Mutation/2_color_and_format.Rmd` | **5 个 chunk 同名 `libarary`** ⇒ knitr 直接报 Duplicate chunk label 中止；安装 chunk 未加 `eval=FALSE`，每次 knit 都联网重装 |
+| `AA/.../3_seurat_good_and_short.R` | 算了 `mt_percent` 却未用于过滤；单样本跑 Harmony；细胞注释写死 cluster 编号而全程无 `set.seed` |
+| `TCGA_clinical/05.diff/edgeR.R` | 分组是写死的样本数（49 + 123）；火山图两轴与惯例相反；`yMax=12` 会截断大 logFC |
+| `TCGA_clinical/08.ks/KS.R` | 未剔除 `unknow` 占位分组；`kruskal.test` 结果存进名为 `wilcoxP` 的变量 |
+| `67/1/method1.R` | `na.omit` 把所有存活患者整批删除 ⇒ 队列无删失，生存分析不成立 |
+| `67/3_pl_language/method3_cleanup.pl` | `use warnings` 被注释；Windows 回退分支里 `"\$"` 是转义美元符，拼出的是字面量 |
+| `AA/back/2_singlCell_data_Not_good.Rmd` | 文件名与 `back/` 已表明是搁置稿，非正式流程 |
+
+### 本阶段唯一的代码改动
+
+`3_seurat_with_data.R` 的 `group.by = "celltytpe"` → `"celltype"`。
+
+### 验证
+
+R 文件 `parse()` 改前/改后 **0 回归**。Perl 用 `perl -c`：两个通过；
+`get_clinical_from_XML.pl` 与 `method3_cleanup.pl` 改前改后**报同一个错**
+（本机未安装 `XML::Simple`），非本次改动所致。
+
+## 总进度
+
+| 项 | 状态 |
+| :--- | :---: |
+| 文件名/目录名英文化 | ✅ |
+| 源文件编码修复 | ✅ |
+| 被吞代码的还原 | ✅（17 行，扫描覆盖全仓库） |
+| 缺陷处理 | 已修 **44** 处；**19** 处按判断只标不改 |
+| 注释 — 编号分析目录 + 专题目录 | ✅ **全部完成** |
+| 注释 — `00_All_Utilities`(39) + `CC_Miami`(5) | ⏸ 按用户决定暂缓 |
