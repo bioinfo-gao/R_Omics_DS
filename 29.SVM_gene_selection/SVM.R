@@ -57,9 +57,9 @@ rt1=t(data)
 #   全新会话里运行会报 object 'lassoGene' not found;
 #   若先跑过 lasso.R 再跑本脚本, 则会静默拿 LASSO 选出的基因当成 SVM 的结果。
 #   这里应当用第 38 行的 featureGenes。
-svmexp=rt1[lassoGene,,drop=F]
+svmexp=rt1[featureGenes,,drop=F]
 svmexp=as.data.frame(svmexp)
 colnames(svmexp)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\-\\4", colnames(svmexp))
 # FIXME ⚠ 同上: 写出的是 lassoexp(LASSO 的表达矩阵), 而不是本脚本算出的 svmexp。
 #   结果是 SVM.geneExp.txt 里装的其实是 LASSO 的结果。应改为 write.table(svmexp, ...)。
-write.table(lassoexp, file="SVM.geneExp.txt", sep="\t", quote=F, row.names=T, col.names=T)
+write.table(svmexp, file="SVM.geneExp.txt", sep="\t", quote=F, row.names=T, col.names=T)
