@@ -12,7 +12,7 @@
 | 2026-09-18 ③ | 本文件 | 新增 `AI_EDIT_LOG.md` | 1 个新文件 | — |
 | 2026-09-18 ④ | `afecbab` | 39 个源文件 GBK→UTF-8 重编码 | 还原 277 行注释 | 否，纯 ASCII 行断言逐字节未变 |
 | 2026-09-18 ⑤ | `0d0a7c3` | 15 个分析脚本加注释 | +263 行注释 | 否，只插入整行注释 |
-| 2026-09-18 ⑥ | 6 个 commit | 修复 6 处已确认缺陷 | 7 行代码 | **是**，见下方缺陷表 |
+| 2026-09-18 ⑥ | 7 个 commit | 修复 7 处已确认缺陷 | 10 行代码 | **是**，见下方缺陷表 |
 
 ## 三条命令自查（复制即可跑，预期输出已实测）
 
@@ -232,6 +232,7 @@ git -c core.quotePath=false ls-tree -r --name-only 2633feb | grep -P '[^\x00-\x7
 | `dd346bb` | `70.Clinical_Correlation_Screening.R` | `cbind` → `data.frame`。`cbind` 把表达量转成字符，`kruskal.test` 随之按字典序排秩 | **实测**：p=0.5127 vs 正确的 0.8273 |
 | `ab6f08a` | `29.SVM_gene_selection/SVM.R` | `lassoGene`→`featureGenes`、`lassoexp`→`svmexp`。原写法引用了 28 号脚本的变量，同一会话里会把 **LASSO 的结果写进 `SVM.geneExp.txt`** | 变量在本文件中从未定义 |
 | `dc1c2bb` | `22.Immu_cell_state_with_Survival.R` | 补回被编码事故吃掉的 `cli=`，并取消被误注释的 `sameSample=` | 后续行引用这两个变量，是唯一解 |
+| `289244a` | `02.DE_limma/limma.R` | 合并被换行从中间劈开的三个标识符 `symnum.args` / `symbols` / `label`，此前该文件**整个无法被 R 解析** | 与 `13.edgeR`、`14.DESeq_difference` 中完好的同一调用逐字比对 |
 
 ## 已标注但**未**修改的缺陷（留给你决定）
 
@@ -250,3 +251,30 @@ git -c core.quotePath=false ls-tree -r --name-only 2633feb | grep -P '[^\x00-\x7
 第 ⑤ 轮的注释工作**尚未完成**：全仓库 190 个在范围内的源文件中，
 80 个原本注释密度已达标（≥0.30）不需要补，**109 个需要补，目前完成 15 个，剩余 94 个**。
 剩余清单见本轮对话，或用下面命令自行生成当前密度排名。
+
+## 第 ⑥ 轮的语法验证
+
+对本轮改动过的全部 40 个 `.R` 文件做了改前 / 改后 `parse()` 对比：
+
+| 断言 | 结果 |
+| :--- | :---: |
+| 改前能解析、改后不能（回归） | **0 个** |
+| 改前不能解析、改后能 | **7 个** |
+| 改后仍不能解析 | 0 个 |
+
+那 7 个原本连 R 都读不进去的文件是：`02.DE_limma/limma.R`、
+`22.Immu_cell_state_with_Survival/22_Immu_survival.R`、
+`27.Cuproptosis_Related_Gene_Selection/cu.R`、
+`31.Machine_Learning_Modeling/Machine_Learning_Modeling.R`、
+`34.Machine_Learning_Model_ROC/Machine_Learning_ROC.R`、
+`76.Model_Loop/Build_Lasso_Model.R`、`76.Model_Loop/main.R`。
+
+复查命令：
+
+```bash
+# 对任意 commit 检查全部 R 文件是否可解析
+for f in $(git ls-tree -r --name-only HEAD | grep -i '\.r$'); do
+  git cat-file -p "HEAD:$f" > /tmp/_chk.R
+  Rscript -e 'q(status=tryCatch({parse("/tmp/_chk.R");0}, error=function(e)1))' || echo "FAIL $f"
+done
+```
