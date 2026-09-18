@@ -1,3 +1,15 @@
+<!--
+本文件用途: maftools 入门与 R Markdown 排版试验(你自己写的, 见 YAML 的 author)
+
+⚠ 两处会影响使用:
+  1) 下面有【五个 chunk 都取名 libarary】(且是 library 的拼写错误)。
+     knitr 遇到重复 chunk label 会直接报 "Duplicate chunk label" 并中止编织,
+     除非设置 options(knitr.duplicate.label = 'allow')。建议改成各不相同的名字。
+  2) 这些 chunk 里的 install.packages / BiocManager::install 没有加 eval=FALSE,
+     所以每次 knit 都会真的去联网安装, 其中 BiocManager::install("maftools", force=TRUE)
+     还会强制重装。若只想留作笔记, 给这些 chunk 加 eval=FALSE。
+-->
+
 ---
 title: "Demon Of RMarkdown"
 author: "Zhen Gao"

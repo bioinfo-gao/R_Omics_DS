@@ -1,4 +1,15 @@
+# 方法 3: 用 Perl 遍历 TCGA 的每患者 XML, 提取临床字段
+#
+# 输入: 当前目录下每个患者一个子目录, 内含 *.xml
+# 输出: clinical.xls (Id/futime/fustat/Age/Gender/Grade/Stage/T/M/N)
+#
+# ✅ 与 TCGA_clinical/ 下同类的三个 .pl 不同, 本文件【没有】那种时间失效开关
+#   (if($samp1e[5]>118){next;}), 因此逻辑是完整的。
+# ⚠ 但有两处需要注意, 见第 2 行与第 27 行。
+
 use strict;
+# ⚠ use warnings 被注释掉了。XML 里缺字段时会静默产生 undef,
+#   拼进输出就是空串, 而不会有任何提示。调试时建议临时打开。
 #use warnings;
 
 use XML::Simple;
@@ -21,9 +32,14 @@ foreach my $dir(@dirs){
 	  		#print "$dir\\$xmlfile\n";
 				my $userxs = XML::Simple->new(KeyAttr => "name");
 				my $userxml="";
+# 先按 Unix 风格 dir/file 试; 失败才走下面的 else 分支
 				if(-f "$dir/$xmlfile"){
 					$userxml = $userxs->XMLin("$dir/$xmlfile");
 				}else{
+# ⚠ 这个 else 分支是坏的: Perl 双引号里 "\$" 是【转义的美元符】,
+#   所以这里拼出来的是字面字符串 "dir$xmlfile", 而不是变量的值。
+#   真要兼容 Windows 应写成 "$dir\\$xmlfile" 或直接用 File::Spec->catfile。
+#   实际影响不大, 因为上面 -f 判断成立时就已经正确读到了文件。
 					$userxml = $userxs->XMLin("$dir\$xmlfile");
 				}
 				# print output

@@ -1,3 +1,16 @@
+<!--
+本文件用途: SingleCellExperiment / scater / scran 的入门笔记(你自己写的)
+数据: GSE126030, 由文中的 curl/wget chunk 下载
+
+⚠ 注意本文件的定位: 文件名带 _Not_good 且位于 back/ 目录, 属于被搁置的尝试稿,
+  不是 53.Single_and_Spatial 的正式流程 —— 正式流程见同级目录的 3_seurat_*.R。
+
+⚠ 其它:
+  - 下载 chunk 标了 eval=FALSE, 但后面的 read_tsv 直接按【当前工作目录】读文件,
+    若没先手动下载并解压, knit 会在那里失败。
+  - 文中有 ?here 这类交互式帮助调用, 属草稿残留。
+-->
+
 ---
 title: "singleCellExperiment"
 author: "Zhen Gao"

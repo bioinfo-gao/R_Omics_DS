@@ -1,3 +1,11 @@
+<!--
+来源说明: 本文件是 maftools 官方 vignette 的原样拷贝(YAML 的 author 为 Anand Mayakonda),
+不是本项目自写的分析脚本。留在这里作为 maftools 用法参考。
+
+⚠ 因此不要按本项目的规范去改写它 —— 上游更新时直接替换整份更合适。
+本目录中属于你自己的分析是 2_1_MAF_summary.Rmd(该文件已有较完整的中文注释)。
+-->
+
 ---
 title: "Personlaized cancer report"
 author: "Anand Mayakonda"
