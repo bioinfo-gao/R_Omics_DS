@@ -1,3 +1,13 @@
+# 163_difference.R 的修整版: 同一套数据用 limma / DESeq2 / edgeR 三法比较
+#
+# 输入/输出与 163_difference.R 相同
+#
+# 本文件是两份副本中较完整的一份: install.packages 已注释、韦恩图标题是英文,
+# 且 data=colnames(countData) 与 edgeR 段的 read.table 都完好 ——
+# 这三处正是 163_difference.R 中被编码事故破坏、后来据本文件还原的地方。
+#
+# ⚠ 与另一份相同的问题: edgeR 段阈值原本与前两段不一致, 现已统一。
+
 setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/16.Limma_edgeR_DESeq_3_packages_diff")
 #install.packages("VennDiagram")
 library(edgeR)
@@ -209,8 +219,10 @@ ordered_tags <- topTags(et, n=100000)
 allDiff=ordered_tags$table
 allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
 
+# ⚠ 已改: 原为 foldChange=1, 而上面 limma 与 DESeq2 两段用的是 2。
+#   三种方法必须用同一条尺子, 否则末尾的韦恩图比较的是不同阈值下的结果。
 padj = 0.05
-foldChange= 1
+foldChange= 2
 diff_signif = allDiff[(allDiff$FDR < padj & (allDiff$logFC>foldChange | allDiff$logFC<(-foldChange))),]
 diff_signif = diff_signif[order(diff_signif$logFC),]
 save(diff_signif, file = 'edger_diff.Rdata')

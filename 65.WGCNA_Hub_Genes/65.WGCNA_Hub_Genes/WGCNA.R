@@ -1,3 +1,12 @@
+# WGCNA 续篇: 在目标模块内筛选 hub 基因
+#
+# 输入: 与 64.WGCNA_Trait_Related_Genes 同源的表达矩阵与性状表
+# 输出: 模块成员度(MM)与性状显著性(GS)相关图, 以及 hub 基因列表
+#
+# ⚠ 第 21 行原有与 64 相同的尾部反斜杠 bug, 已修复。
+# 注: 本目录多了一层同名子目录(65.WGCNA_Hub_Genes/65.WGCNA_Hub_Genes/),
+#     是重命名前就存在的嵌套结构, 未作调整。
+
 
 library(WGCNA)
 library(limma)
@@ -18,7 +27,9 @@ nT = ncol(exp_data_T)
 exp_data_N = data2%>% dplyr::select(str_which(colnames(.), "-11A"))#【读取11A的样本（正常）】
 nN = ncol(exp_data_N) 
 rt= exp_data_T #【仅保留肿瘤组的数据】
-colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\", colnames(rt)) #【简化样品名】
+# ⚠ 已修复: 原替换串结尾多一个反斜杠, 会给每个样本名追加字面反斜杠,
+#   使其与性状表永远无法匹配。详见 64.WGCNA_Trait_Related_Genes 第 27 行说明。
+colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", colnames(rt)) #【简化样品名】
 data3=as.data.frame(rt)
 duplicated(colnames(data3))#【查看是否有重复列】
 rt<-data3[,!duplicated(colnames(data3))] #【将重复列删除】

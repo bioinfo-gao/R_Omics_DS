@@ -1,7 +1,15 @@
+# WGCNA: 构建共表达网络, 找与表型(性状)相关的模块及其基因
+#
+# 输入: counts.txt(行=基因, 列=样本), 以及后续读入的性状表
+# 输出: WGCNA 各阶段的图与模块-性状相关性结果
+#
+# ⚠ 第 27 行原有一个会让样本名带上多余反斜杠的 bug, 已修复(见该处)。
+# 注: 本文件逐行都带【】中文说明, 下面只补充这些说明未覆盖的坑。
+
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 setwd("C:/Users/zhen-/Code/R_code/R_Omics_DS/64.WGCNA_Trait_Related_Genes")
-BiocManager::install("GO.db")
+# BiocManager::install("GO.db")   # 已注释: 原先每次 source 都会触发安装
 
 library("GO.db")
 library(WGCNA)
@@ -23,14 +31,20 @@ exp_data_T = data2%>% dplyr::select(str_which(colnames(.), "-01A"))#【读取01A
 nT = ncol(exp_data_T) 
 exp_data_N = data2%>% dplyr::select(str_which(colnames(.), "-11A"))#【读取11A的样本（正常）】
 nN = ncol(exp_data_N) 
+# 只保留肿瘤样本 —— 注意上面虽然算了 exp_data_N/nN, 但正常样本在此被丢弃
 rt= exp_data_T #【仅保留肿瘤组的数据】
-colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\", colnames(rt)) #【简化样品名】
+# ⚠ 已修复: 原替换串结尾多一个反斜杠("\\1\\-\\2\\-\\3\\"),
+#   实测会给每个样本名追加一个字面反斜杠, 例如 TCGA-AB-1234\ 。
+#   后果是这些列名与性状表里的样本名永远对不上, 而 R 不会有任何提示。
+#   同样的写法在 65.WGCNA_Hub_Genes 与 25.Mutation_Burden/3 中也有, 已一并修复。
+colnames(rt)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", colnames(rt)) #【简化样品名】
 data3=as.data.frame(rt)
 duplicated(colnames(data3))#【查看是否有重复列】
-??goodSamplesGenes
+# ??goodSamplesGenes   # 已注释: 交互式帮助检索, 属调试残留
 rt<-data3[,!duplicated(colnames(data3))] #【将重复列删除】
 datExpr0 = as.data.frame(t(rt))
 
+# goodSamplesGenes 会标出缺失过多或方差为零的基因/样本, 下面的 if 块负责剔除
 gsg = WGCNA::goodSamplesGenes(datExpr0, verbose = 3)#【检查缺缺失值】
 gsg$allOK
 #【如果有缺失值就在下方删除】
@@ -44,6 +58,9 @@ if (!gsg$allOK)
 }
 
 ###过滤表达量【将表达量过低的基因删除】#####
+# ⚠ 这里的过滤是把「各基因均值」当作额外一行追加到 datExpr0 末尾, 用完再丢掉。
+#   写法可行但脆弱: 若 datExpr0 已含同名行, 或中途出错未清理, 会污染数据。
+#   等价且更安全的写法: datExpr0 <- datExpr0[, colMeans(datExpr0) > meanFPKM]
 meanFPKM=0.1  #【设置过滤值】
 n=nrow(datExpr0)
 datExpr0[n+1,]=apply(datExpr0[c(1:nrow(datExpr0)),],2,mean)#【读取表达量值】

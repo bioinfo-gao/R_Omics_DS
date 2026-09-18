@@ -1,3 +1,11 @@
+# UpSetR 集合交集图示例 —— 数据来自 UpSetR 官方 vignette, 非本项目实际数据
+#
+# 输入: 无(输入向量直接写在文件里)
+# 输出: 绘图到默认设备, 未落盘
+#
+# ⚠ 第 2 行的 install.packages 未注释, source 本文件会触发联网安装。
+# 用途: 作为把「多个基因集求交集」画成 UpSet 图的模板, 替换 input 向量即可。
+
 #install.packages("UpSetR")
 install.packages("UpSetR", dependencies = T)
 library(UpSetR)

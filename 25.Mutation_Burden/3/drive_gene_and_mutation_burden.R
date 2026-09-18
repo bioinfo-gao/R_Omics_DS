@@ -1,3 +1,10 @@
+# 驱动基因表达 与 肿瘤突变负荷(TMB) 的关系
+#
+# 输入: geneExp.txt(目标基因表达), TMB.txt(每个样本的突变负荷)
+# 输出: 表达高低分组与 TMB 的比较图
+#
+# ⚠ 第 20/25 行原有尾部反斜杠 bug, 已修复(见下)。
+
 setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/25.肿瘤突变负荷分析/3")
 
 
@@ -17,12 +24,15 @@ gene=colnames(rt)[1]
 #ɾ????????Ʒ
 tumorData=rt[rt$Type=="Tumor",1,drop=F]
 tumorData=as.matrix(tumorData)
-rownames(tumorData)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\", rownames(tumorData))
+# ⚠ 已修复: 两处 gsub 的替换串结尾都多一个反斜杠, 会给样本名追加字面反斜杠。
+#   本文件里因为【两侧都被同样地加了反斜杠】, intersect 仍能匹配上, 侥幸未出错;
+#   但只要有一侧改用正确写法, 匹配就会全部落空。现已一并改正。
+rownames(tumorData)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", rownames(tumorData))
 data=avereps(tumorData)
 
 #??ȡ????ͻ?为?ɵ??ļ?
 tmb=read.table(tmbFile, header=T, sep="\t", check.names=F, row.names=1)
-rownames(tmb)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3\\", rownames(tmb))
+rownames(tmb)=gsub("(.*?)\\-(.*?)\\-(.*?)\\-.*", "\\1\\-\\2\\-\\3", rownames(tmb))
 tmb=avereps(tmb)
 #???ݺϲ???????????
 sameSample=intersect(row.names(data), row.names(tmb))

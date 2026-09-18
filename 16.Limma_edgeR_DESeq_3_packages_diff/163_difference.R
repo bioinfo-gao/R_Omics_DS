@@ -1,5 +1,14 @@
+# 同一套 TCGA 数据分别用 limma / DESeq2 / edgeR 做差异分析, 再用韦恩图比较三者
+#
+# 输入: ../01.New_TCGA/combined_RNAseq_FPKM.txt   (limma 段)
+#       ../01.New_TCGA/combined_RNAseq_counts.txt (DESeq2 段与 edgeR 段)
+# 输出: limma_diff1.Rdata / DESeq2_diff2.Rdata / edger_diff.Rdata / VN.png
+#
+# ⚠ 本文件此前有三处被编码事故破坏, 且三段阈值不一致, 均已修复并在原地注明。
+# 注: 同目录 163_difference_ZG.R 是同一分析中更完整的一份, 可作对照。
+
 setwd("C:/Users/zhen-/Code/R_code/R_For_DS_Omics/16.Limma_edgeR_DESeq_3_packages_diff")
-install.packages("VennDiagram")
+# install.packages("VennDiagram")
 library(edgeR)
 library(data.table)
 library(tidyverse)
@@ -27,6 +36,11 @@ rt1[1:2, 1:5]
 rt1=as.matrix(rt1)
 rownames(rt1)=rt1[,1]
 
+# ⚠ limma 段从第 3 列取表达值, 而下面 DESeq2 段与 edgeR 段从第 2 列取。
+#   若两个文件都由 01.New_TCGA 在 symbol=T 且 RNA_type=T 下写出, 结构相同,
+#   则两种取法不可能都对 —— 从第 2 列取会把 RNA 类型列当成一个样本,
+#   as.numeric 后整列变 NA, rowMeans 随之全为 NA, 过滤会清空所有基因。
+#   一行即可自查: colnames(rt)[1:3] —— 看第 2 列究竟是类型还是第一个样本。
 exp1=rt1[,3:ncol(rt1)] # exp1=rt1[,2:ncol(rt1)]
 exp1[1:2, 1:5]
 
@@ -51,6 +65,7 @@ dim(data1)
 # exp[1:2, 1:5]
 
 
+# 按 barcode 后缀拆肿瘤(-01A)与癌旁(-11A), 并固定成「正常在前」的列顺序
 exp1_data_T = data1%>% dplyr::select(str_which(colnames(.), "-01A")) # 
 nT = ncol(exp1_data_T) 
 exp1_data_N = data1%>% dplyr::select(str_which(colnames(.), "-11A"))
@@ -69,6 +84,9 @@ design <- model.matrix(~factor(class)+0)
 colnames(design) <- c("con","treat")
 #?㷽??
 df.fit <- lmFit(rt1,design)
+# ⚠ 方向: con - treat = 正常 - 肿瘤, 故 logFC>0 表示在【正常】中更高;
+#   这与已统一方向后的 02.DE_limma/limma.R(肿瘤 - 正常)相反。
+#   未自动改: 本文件三段的方向需一并核对后统一, 以免段与段之间再错开。
 df.matrix<- makeContrasts(con - treat,levels=design)
 fit<- contrasts.fit(df.fit,df.matrix)
 #??Ҷ˹????
@@ -80,6 +98,7 @@ allDEG1 = na.omit(allDEG1)
 
 
 padj = 0.05
+# ⚠ 变量名叫 foldChange, 但下一行拿它与 logFC 比较 —— 所以 2 的含义是 4 倍
 foldChange= 2
 diff_signif1 = allDEG1[(allDEG1$adj.P.Val < padj & 
                           (allDEG1$logFC>foldChange | allDEG1$logFC<(-foldChange))),]
@@ -113,11 +132,16 @@ group1=gsub("2", "1", group1)
 conNum=length(group1[group1==1])       #????????Ʒ??
 treatNum=length(group1[group1==0])     #????????Ʒ??
 
+# avereps 取均值后会出现小数, DESeq2 要求整数 counts, 故向下取整
 count <- floor(data)#??ȡ
 #count <- ceiling(count)#??ȡ
 # Ԥ???���???˵ͷ??ȵ?????
 countData <- count[apply(count, 1, sum) > 0 , ]
-# ??ȡcolnames(countData)
+# 已还原: 原为 data=colnames(countData), 整行被编码事故并进了注释。
+# 判据: 下面用 cbind(data, Type) 构造样本-分组表; 若 data 仍是表达矩阵,
+# 稍后的 colnames(exp)=c("id","Type") 会因列数不符直接报错。
+# 对照: 同目录 163_difference_ZG.R 第 131 行有逐字相同的这一行。
+data=colnames(countData)
 Type=c(rep(1,conNum), rep(2,treatNum))
 exp=cbind(data, Type)
 exp=as.data.frame(exp)
@@ -152,7 +176,10 @@ save(diff_signif2, file = 'DESeq2_diff2.Rdata')
 
 
 #####degeR????#####
- DEead.table("combined_R../01.New_TCGA/NAseq_counts.txt",sep="\t",header=T,check.names=F) #?ĳ??Լ????ļ???
+# 已还原: 原行被破坏成 DEead.table("combined_R../01.New_TCGA/NAseq_counts.txt") ——
+# 路径被粘贴进了文件名中间, 变量名也丢了。判据: 下一行是 rt=as.matrix(rt),
+# 且本文件 DESeq2 段读的正是 ../01.New_TCGA/combined_RNAseq_counts.txt。
+rt=read.table("../01.New_TCGA/combined_RNAseq_counts.txt",sep="\t",header=T,check.names=F) #?ĳ??Լ????ļ???
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
 exp=rt[,2:ncol(rt)]
@@ -184,8 +211,12 @@ ordered_tags <- topTags(et, n=100000)#????????Ϣ??????
 allDiff=ordered_tags$table
 allDiff=allDiff[is.na(allDiff$FDR)==FALSE,]
 #??ȡ?????????????Ĳ???????
+# ⚠ 已改: 原为 foldChange=1, 而上面 limma 与 DESeq2 两段用的都是 2。
+#   本脚本的全部目的是比较三种方法, 三条尺子必须一致, 否则 edgeR 只是因为
+#   阈值更松而显得检出更多, 末尾的韦恩图也随之失去意义。已统一为 2。
+#   若想整体放宽到 2 倍(log2FC>1), 请把另外两段的 foldChange 一并改成 1。
 padj = 0.05
-foldChange= 1
+foldChange= 2
 diff_signif = allDiff[(allDiff$FDR < padj & (allDiff$logFC>foldChange | allDiff$logFC<(-foldChange))),]
 diff_signif = diff_signif[order(diff_signif$logFC),]
 save(diff_signif, file = 'edger_diff.Rdata')
@@ -214,7 +245,7 @@ venn.diagram(
   cat.cex = 0.8,
   cat.fontface = "bold",
   margin = 0.05,
-  main = "???ְ??Ĳ????????????Ƚ?",
+  main = "The DE gene detected by Limma edgeR and DESeq2",   # 原标题为乱码, 照搬 163_difference_ZG.R 的英文原文
   main.cex = 1.2
 )
 
