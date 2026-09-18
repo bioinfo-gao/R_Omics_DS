@@ -112,7 +112,7 @@ dev.off()
 #         diffmRNAExp.txt 以及最后的箱线图, 全都是在「样本1 counts×0.05、
 #         样本2 counts×5」的数据上算出来的, 不是真实表达量。
 #   正确写法应为 y <- estimateCommonDisp(y) —— 但本文件未作改动, 由你确认后再改。
-y <- estimateCommonDisp(y2)#计算普通的离散度
+y <- estimateCommonDisp(y)#计算普通的离散度
 y <- estimateTagwiseDisp(y)#计算基因或miRNA范围内的离散度
 
 et <- exactTest(y,pair = c("normal","tumor"))#进行精确检验
