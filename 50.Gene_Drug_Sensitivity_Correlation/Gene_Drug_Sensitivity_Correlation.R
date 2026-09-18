@@ -40,7 +40,7 @@ geneExp$Type=ifelse(geneExp[,gene]>median(geneExp[,gene]), "High", "Low")
 
 
 for(drug in allDrugs){
-  #Ô¤²âÒ©ÎïÃô¸ÐÐÔ
+  #é¢„æµ‹è¯ç‰©æ•æ„Ÿæ€§
   possibleError=tryCatch(
     {senstivity=pRRopheticPredict(data, drug, selection=1, dataset = "cgp2016")},
     error=function(e) e)
@@ -48,7 +48,7 @@ for(drug in allDrugs){
   senstivity=senstivity[senstivity!="NaN"]
   senstivity[senstivity>quantile(senstivity,0.99)]=quantile(senstivity,0.99)
   
-  #ºÏ²¢Ãô¸ÐÐÔÓë±í´ï¾ØÕó
+  #åˆå¹¶æ•æ„Ÿæ€§ä¸Žè¡¨è¾¾çŸ©é˜µ
   sameSample=intersect(row.names(geneExp), names(senstivity))
   geneExp1=geneExp[sameSample, "Type",drop=F]
   geneExp2=geneExp[sameSample,gene,drop=F]
@@ -58,7 +58,7 @@ for(drug in allDrugs){
   type=levels(factor(rt[,"Type"]))
   comp=combn(type, 2)
   
-  #ÌáÈ¡Ä¿±ê»ùÒò±í´ïÁ¿
+  #æå–ç›®æ ‡åŸºå› è¡¨è¾¾é‡
   x=as.numeric(geneExp2[,gene])
   outTab=data.frame()
   y=as.numeric(rt$senstivity)
@@ -66,8 +66,8 @@ for(drug in allDrugs){
   cor=corT$estimate
   pvalue=corT$p.value
   outTab=rbind(outTab, cbind(Query=gene, Gene=drug, cor, pvalue))
-  #±£´æÂú×ãÌõ¼þµÄ»ùÒò
-  #¿ÉÊÓ»¯
+  #ä¿å­˜æ»¡è¶³æ¡ä»¶çš„åŸºå› 
+  #å¯è§†åŒ–
   if((abs(cor)>corFilter) & (pvalue<pFilter)){
     df1=as.data.frame(cbind(x,y))
     p1=ggplot(df1, aes(x, y)) + 

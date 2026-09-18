@@ -1,18 +1,18 @@
 
 
-#ÒýÓÃ°ü
+#å¼•ç”¨åŒ…
 library(limma)
 library(ggplot2)
 library(ggpubr)
 library(ggExtra)
 
-gene="ARL15"               #Ä¿±ê»ùÒòµÄÃû³Æ
-corFilter=0.3            #Ïà¹ØÏµÊýµÄ¹ýÂËÌõ¼þ
-pFilter=0.05             #Ïà¹ØÐÔ¼ìÑépvalueµÄ¹ýÂËÌõ¼þ
-expFile="combined_RNAseq_counts.txt"      #±í´ïÊý¾ÝÎÄ¼þ
-drugFile="DrugPredictions.csv"            #Ò©ÎïÃô¸ÐÎÄ¼þ
+gene="ARL15"               #ç›®æ ‡åŸºå› çš„åç§°
+corFilter=0.3            #ç›¸å…³ç³»æ•°çš„è¿‡æ»¤æ¡ä»¶
+pFilter=0.05             #ç›¸å…³æ€§æ£€éªŒpvalueçš„è¿‡æ»¤æ¡ä»¶
+expFile="combined_RNAseq_counts.txt"      #è¡¨è¾¾æ•°æ®æ–‡ä»¶
+drugFile="DrugPredictions.csv"            #è¯ç‰©æ•æ„Ÿæ–‡ä»¶
 
-#¶ÁÈ¡ÊäÈëÎÄ¼þ£¬²¢¶ÔÊäÈëÎÄ¼þ½øÐÐÕûÀí
+#è¯»å–è¾“å…¥æ–‡ä»¶ï¼Œå¹¶å¯¹è¾“å…¥æ–‡ä»¶è¿›è¡Œæ•´ç†
 rt0=read.csv(drugFile,header=T,check.names=F,row.names = 1)
 rt0=as.matrix(t(rt0))
 rt=read.table(expFile, header=T, sep="\t", check.names=F)
@@ -24,17 +24,17 @@ data=matrix(as.numeric(as.matrix(exp)), nrow=nrow(exp), dimnames=dimnames)
 data=avereps(data)
 data=data[rowMeans(data)>1,]
 
-#É¾µôÕý³£ÑùÆ·
+#åˆ æŽ‰æ­£å¸¸æ ·å“
 group=sapply(strsplit(colnames(data),"\\-"), "[", 4)
 group=sapply(strsplit(group,""), "[", 1)
 group=gsub("2", "1", group)
 data=data[,group==0]
 data=log2(data+1)
 
-#ÌáÈ¡Ä¿±ê»ùÒò±í´ïÁ¿
+#æå–ç›®æ ‡åŸºå› è¡¨è¾¾é‡
 x=as.numeric(data[gene,])
 outTab=data.frame()
-#¶Ô»ùÒò½øÐÐÑ­»·£¬½øÐÐÏà¹ØÐÔ¼ìÑé
+#å¯¹åŸºå› è¿›è¡Œå¾ªçŽ¯ï¼Œè¿›è¡Œç›¸å…³æ€§æ£€éªŒ
 for(j in rownames(rt0)){
 	if(gene==j){next}
     y=as.numeric(rt0[j,])
@@ -42,9 +42,9 @@ for(j in rownames(rt0)){
 	cor=corT$estimate
 	pvalue=corT$p.value
 	outTab=rbind(outTab, cbind(Query=gene, Gene=j, cor, pvalue))
-	#±£´æÂú×ãÌõ¼þµÄ»ùÒò
+	#ä¿å­˜æ»¡è¶³æ¡ä»¶çš„åŸºå› 
 	if((abs(cor)>corFilter) & (pvalue<pFilter)){
-		#¿ÉÊÓ»¯
+		#å¯è§†åŒ–
 		df1=as.data.frame(cbind(x,y))
 		p1=ggplot(df1, aes(x, y)) + 
 			xlab(paste0(gene, " expression"))+ ylab(paste0(j, "   drug sensitivity"))+

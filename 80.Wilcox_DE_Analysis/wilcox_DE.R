@@ -1,21 +1,21 @@
-#¶ÁÈ¡TPM¾ØÕó
+#è¯»å–TPMçŸ©é˜µ
 readCount<-read.table(file="combined_RNAseq_TPM.txt", header = T, row.names = 1, stringsAsFactors = F,check.names = F)
-# edger ±ê×¼»¯²¢É¾³ıµÍ±í´ï»ùÒò
+# edger æ ‡å‡†åŒ–å¹¶åˆ é™¤ä½è¡¨è¾¾åŸºå› 
 library(edgeR)
 library(limma)
 group1=sapply(strsplit(colnames(readCount),"\\-"), "[", 4)
 group1=sapply(strsplit(group1,""), "[", 1)
 group1=gsub("2", "1", group1)
 y <- DGEList(counts=readCount,group=group1)
-#É¾³ı¹ıµÍ±í´ïÁ¿»ùÒò
+#åˆ é™¤è¿‡ä½è¡¨è¾¾é‡åŸºå› 
 keep <- filterByExpr(y)
 y <- y[keep,keep.lib.sizes=FALSE]
-##½øĞĞTMM±ê×¼»¯²¢×ªÒÆµ½CPM£¨°ÙÍò¼ÆÊı£©
+##è¿›è¡ŒTMMæ ‡å‡†åŒ–å¹¶è½¬ç§»åˆ°CPMï¼ˆç™¾ä¸‡è®¡æ•°ï¼‰
 y <- calcNormFactors(y,method="TMM")
 count_norm=cpm(y)
 count_norm<-as.data.frame(count_norm)
 
-# ¶ÔÃ¿¸ö»ùÒò½øĞĞWilcoxonÖÈºÍ¼ìÑé
+# å¯¹æ¯ä¸ªåŸºå› è¿›è¡ŒWilcoxonç§©å’Œæ£€éªŒ
 library(future.apply)
 plan(multisession)
 pvalues <- future_lapply(1:nrow(count_norm),function(i){
@@ -25,19 +25,19 @@ pvalues <- future_lapply(1:nrow(count_norm),function(i){
 })
 fdr=p.adjust(pvalues,method = "fdr")
 
-# ¼ÆËãÃ¿¸ö»ùÒòµÄ±¶Êı±ä»¯
+# è®¡ç®—æ¯ä¸ªåŸºå› çš„å€æ•°å˜åŒ–
 group2=factor(group1)
 conditionsLevel<-levels(group2)
-dataCon1=count_norm[,c(which(group1==conditionsLevel[1]))] #Ö×Áö
-dataCon2=count_norm[,c(which(group1==conditionsLevel[2]))] #Õı³£
-#Ö×Áö±ÈÕı³££¬logFC´óÓÚ0ÔòÎª¡°»ùÒòÔÚÖ×ÁöÉÏµ÷¡±£»ÈôÎªÕı³£±ÈÖ×Áö£¬ÔòlogFC´óÓÚ0±íÊ¾¡°»ùÒòÔÚÕı³£ÖĞÉÏµ÷¡±
+dataCon1=count_norm[,c(which(group1==conditionsLevel[1]))] #è‚¿ç˜¤
+dataCon2=count_norm[,c(which(group1==conditionsLevel[2]))] #æ­£å¸¸
+#è‚¿ç˜¤æ¯”æ­£å¸¸ï¼ŒlogFCå¤§äº0åˆ™ä¸ºâ€œåŸºå› åœ¨è‚¿ç˜¤ä¸Šè°ƒâ€ï¼›è‹¥ä¸ºæ­£å¸¸æ¯”è‚¿ç˜¤ï¼Œåˆ™logFCå¤§äº0è¡¨ç¤ºâ€œåŸºå› åœ¨æ­£å¸¸ä¸­ä¸Šè°ƒâ€
 foldChanges=log2(rowMeans(dataCon1)/rowMeans(dataCon2)) 
 
-# »ùÓÚFDRãĞÖµµÄÊä³ö½á¹û
+# åŸºäºFDRé˜ˆå€¼çš„è¾“å‡ºç»“æœ
 pvalues0=t(as.data.frame(pvalues))
 outRst<-data.frame(log2foldChange=foldChanges, pValues=pvalues0, FDR=fdr)
 rownames(outRst)=rownames(count_norm)
 outRst=na.omit(outRst)
 fdrThres=0.05
-#µ¼³öÎÄ¼ş
+#å¯¼å‡ºæ–‡ä»¶
 write.table(outRst[with(outRst, ((log2foldChange> 1 | log2foldChange< (-1)) & FDR < 0.05 )),], file="wilcoxout.tsv",sep="\t", quote=F,row.names = T,col.names = T)

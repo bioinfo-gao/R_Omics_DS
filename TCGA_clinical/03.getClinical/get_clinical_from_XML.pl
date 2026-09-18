@@ -4,9 +4,9 @@ use warnings;
 use XML::Simple;
 #use Data::Dumper;
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 my @dirs=glob("*");
 my @samp1e=(localtime(time));
@@ -100,5 +100,5 @@ foreach my $dir(@dirs){
 close(WF);
 
 ###Video source: http://study.163.com/u/biowolf
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388

@@ -7,19 +7,19 @@
 #install.packages("ggExtra")
 
 
-#ÒıÓÃ°ü
+#å¼•ç”¨åŒ…
 library(limma)
 library(ggplot2)
 library(ggpubr)
 library(ggExtra)
 
-gene="ARL15"               #Ä¿±ê»ùÒòµÄÃû³Æ
-corFilter=0.3            #Ïà¹ØÏµÊıµÄ¹ıÂËÌõ¼ş
-pFilter=0.05             #Ïà¹ØĞÔ¼ìÑépvalueµÄ¹ıÂËÌõ¼ş
-expFile="combined_RNAseq_FPKM.txt"      #±í´ïÊı¾İÎÄ¼ş
+gene="ARL15"               #ç›®æ ‡åŸºå› çš„åç§°
+corFilter=0.3            #ç›¸å…³ç³»æ•°çš„è¿‡æ»¤æ¡ä»¶
+pFilter=0.05             #ç›¸å…³æ€§æ£€éªŒpvalueçš„è¿‡æ»¤æ¡ä»¶
+expFile="combined_RNAseq_FPKM.txt"      #è¡¨è¾¾æ•°æ®æ–‡ä»¶
 
 
-#¶ÁÈ¡ÊäÈëÎÄ¼ş£¬²¢¶ÔÊäÈëÎÄ¼ş½øĞĞÕûÀí
+#è¯»å–è¾“å…¥æ–‡ä»¶ï¼Œå¹¶å¯¹è¾“å…¥æ–‡ä»¶è¿›è¡Œæ•´ç†
 rt=read.table(expFile, header=T, sep="\t", check.names=F)
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
@@ -29,16 +29,16 @@ data=matrix(as.numeric(as.matrix(exp)), nrow=nrow(exp), dimnames=dimnames)
 data=avereps(data)
 data=data[rowMeans(data)>1,]
 
-#É¾µôÕı³£ÑùÆ·
+#åˆ æ‰æ­£å¸¸æ ·å“
 group=sapply(strsplit(colnames(data),"\\-"), "[", 4)
 group=sapply(strsplit(group,""), "[", 1)
 group=gsub("2", "1", group)
 data=data[,group==0]
 data=log2(data+1)
 
-#ÌáÈ¡Ä¿±ê»ùÒò±í´ïÁ¿
+#æå–ç›®æ ‡åŸºå› è¡¨è¾¾é‡
 x=as.numeric(data[gene,])
-#¶Ô»ùÒò½øĞĞÑ­»·£¬½øĞĞÏà¹ØĞÔ¼ìÑé
+#å¯¹åŸºå› è¿›è¡Œå¾ªç¯ï¼Œè¿›è¡Œç›¸å…³æ€§æ£€éªŒ
 res3 <- data.frame()
 genes <- colnames(rt2)[-c(1:2)]
 plan(multisession)
@@ -49,9 +49,9 @@ system.time(res3 <- future_lapply(rownames(data)), function(j){
   cor=corT$estimate
   pvalue=corT$p.value
   outTab=rbind(outTab, cbind(Query=gene, Gene=j, cor, pvalue))
-  #±£´æÂú×ãÌõ¼şµÄ»ùÒò
+  #ä¿å­˜æ»¡è¶³æ¡ä»¶çš„åŸºå› 
   if((abs(cor)>corFilter) & (pvalue<pFilter)){
-    #¿ÉÊÓ»¯
+    #å¯è§†åŒ–
     df1=as.data.frame(cbind(x,y))
     p1=ggplot(df1, aes(x, y)) + 
       xlab(paste0(gene, " expression"))+ ylab(paste0(j, " expression"))+
@@ -70,9 +70,9 @@ for(j in rownames(data)){
 	cor=corT$estimate
 	pvalue=corT$p.value
 	outTab=rbind(outTab, cbind(Query=gene, Gene=j, cor, pvalue))
-	#±£´æÂú×ãÌõ¼şµÄ»ùÒò
+	#ä¿å­˜æ»¡è¶³æ¡ä»¶çš„åŸºå› 
 	if((abs(cor)>corFilter) & (pvalue<pFilter)){
-		#¿ÉÊÓ»¯
+		#å¯è§†åŒ–
 		df1=as.data.frame(cbind(x,y))
 		p1=ggplot(df1, aes(x, y)) + 
 			xlab(paste0(gene, " expression"))+ ylab(paste0(j, " expression"))+
@@ -84,7 +84,7 @@ for(j in rownames(data)){
 	}
 }
 
-#Êä³öÏà¹ØĞÔ½á¹ûÎÄ¼ş
+#è¾“å‡ºç›¸å…³æ€§ç»“æœæ–‡ä»¶
 write.table(file="corResult.txt", outTab, sep="\t", quote=F, row.names=F)
 outTab=outTab[abs(as.numeric(outTab$cor))>corFilter & as.numeric(outTab$pvalue)<pFilter,]
 write.table(file="corSig.txt", outTab, sep="\t", quote=F, row.names=F)

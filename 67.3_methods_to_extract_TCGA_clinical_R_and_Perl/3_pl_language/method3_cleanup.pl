@@ -78,7 +78,7 @@ foreach my $dir(@dirs){
 							$death=$userxml->{$patient_key}{$follow_key}{$i}{'clin_shared:days_to_death'}{'content'};
 				  };
 				  if($@){
-				  	  for my $j(0..5){                       #¼ÙÉè×î¶àÓĞ6´ÎËæ·Ã
+				  	  for my $j(0..5){                       #å‡è®¾æœ€å¤šæœ‰6æ¬¡éšè®¿
 								  my $followup_for=$userxml->{$patient_key}{$follow_key}{$i}[$j]{'clin_shared:days_to_last_followup'}{'content'};
 									my $vital_status_for=$userxml->{$patient_key}{$follow_key}{$i}[$j]{'clin_shared:vital_status'}{'content'};
 									my $death_for=$userxml->{$patient_key}{$follow_key}{$i}[$j]{'clin_shared:days_to_death'}{'content'};

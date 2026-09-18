@@ -2,9 +2,9 @@ use strict;
 use warnings;
 
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 my $followFile="clinical.txt";
 my $expFile="diffmRNAExp.txt";
@@ -57,9 +57,9 @@ close(RF);
 
 ###Video source: http://study.163.com/u/biowolf
 ######Video source: https://shop119322454.taobao.com
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßÓÊÏä£º2740881706@qq.com
-######×÷ÕßÎ¢ÐÅ: seqBio
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…é‚®ç®±ï¼š2740881706@qq.com
+######ä½œè€…å¾®ä¿¡: seqBio
 
 my @sampleName=();
 my %expHash=();
@@ -103,9 +103,9 @@ while(my $line=<RF>)
 close(RF);
 
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 open(WF,">clinicalExp.txt") or die $!;
 print WF "id\t" . $hash{'id'} . "\t" . join("\t",@geneListArr) . "\n";
@@ -129,6 +129,6 @@ foreach my $key(keys %expHash)
 close(WF);
 
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388

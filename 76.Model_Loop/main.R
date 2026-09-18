@@ -3,7 +3,7 @@ setwd(workspace)
 mod_AUC=mod_AUC_value
 loop=loopTime
 for(z in 1:loop){
-  saytimes=paste0("µÚ",z,"´ÎÑ­»·")
+  saytimes=paste0("ç¬¬",z,"æ¬¡å¾ªç¯")
   setwd(workspace)
   rt=data_orign_rt
   cli=data_orign_cli
@@ -83,14 +83,14 @@ for(z in 1:loop){
           multiTab_risk=multiTab[multiTab[,"id"]=="riskScore",]
           multiTab_risk_p=as.numeric(multiTab_risk$pvalue)
           if(AUC<mod_AUC){
-            print(paste0(saytimes,"²»·ûºÏÌõ¼ş£¬ROC_AUC²»·ûºÏãĞÖµ"),TRUE)}
+            print(paste0(saytimes,"ä¸ç¬¦åˆæ¡ä»¶ï¼ŒROC_AUCä¸ç¬¦åˆé˜ˆå€¼"),TRUE)}
           if(AUC>mod_AUC&multiTab_risk_p<modelpFdlter){
             mod_AUC=mod_AUC+0.01
             setwd(workspace)
-            dir.create(paste0(saytimes,"_½á¹û"))
-            setwd(paste0(saytimes,"_½á¹û"))
-            print(paste0(saytimes,"¡¾###·ûºÏÌõ¼ş£¬Êä³ö½á¹û£¬Í¬Ê±µİÔöãĞÖµ###¡¿¡¾###·ûºÏÌõ¼ş£¬Êä³ö½á£¬Í¬Ê±µİÔöãĞÖµ¹û###¡¿¡¾###·ûºÏÌõ¼ş£¬Êä³ö½á¹û£¬Í¬Ê±µİÔöãĞÖµ###¡¿"))
-            print(paste0("AUCãĞÖµÔö¼ÓÎª_",mod_AUC))
+            dir.create(paste0(saytimes,"_ç»“æœ"))
+            setwd(paste0(saytimes,"_ç»“æœ"))
+            print(paste0(saytimes,"ã€###ç¬¦åˆæ¡ä»¶ï¼Œè¾“å‡ºç»“æœï¼ŒåŒæ—¶é€’å¢é˜ˆå€¼###ã€‘ã€###ç¬¦åˆæ¡ä»¶ï¼Œè¾“å‡ºç»“ï¼ŒåŒæ—¶é€’å¢é˜ˆå€¼æœ###ã€‘ã€###ç¬¦åˆæ¡ä»¶ï¼Œè¾“å‡ºç»“æœï¼ŒåŒæ—¶é€’å¢é˜ˆå€¼###ã€‘"))
+            print(paste0("AUCé˜ˆå€¼å¢åŠ ä¸º_",mod_AUC))
             pdf(file=paste0(saytimes,"_cvfit.pdf"))
             plot(cvfit)
             dev.off()
@@ -128,21 +128,21 @@ for(z in 1:loop){
             dev.off()
           }
           if(multiTab_risk_p>modelpFdlter){
-            print(paste0(saytimes,"²»·ûºÏÌõ¼ş£¬¶àÒòËØ¶ÀÁ¢Ô¤ºó·ÖÎö·çÏÕÖµÎŞÔ¤²â¼ÛÖµ"))
+            print(paste0(saytimes,"ä¸ç¬¦åˆæ¡ä»¶ï¼Œå¤šå› ç´ ç‹¬ç«‹é¢„ååˆ†æé£é™©å€¼æ— é¢„æµ‹ä»·å€¼"))
           }
         }
         if(uniTab_risk_p>0.05){
-          print(paste0(saytimes,"²»·ûºÏÌõ¼ş£¬µ¥ÒòËØ¶ÀÁ¢Ô¤ºópÖµ²»·ûºÏãĞÖµ"))
+          print(paste0(saytimes,"ä¸ç¬¦åˆæ¡ä»¶ï¼Œå•å› ç´ ç‹¬ç«‹é¢„åpå€¼ä¸ç¬¦åˆé˜ˆå€¼"))
         }
         }
-        if(uniTab_risk_p>0.05){print("²»·ûºÏÌõ¼ş£¬µ¥ÒòËØ¶ÀÁ¢Ô¤ºó·ÖÎö·çÏÕÖµÎŞÔ¤²â¼ÛÖµ")}
+        if(uniTab_risk_p>0.05){print("ä¸ç¬¦åˆæ¡ä»¶ï¼Œå•å› ç´ ç‹¬ç«‹é¢„ååˆ†æé£é™©å€¼æ— é¢„æµ‹ä»·å€¼")}
       }
       if(length(lassoGene)<3){
-        print(paste0(saytimes,"²»·ûºÏÌõ¼ş£¬lasso»Ø¹éµÃµ½»ùÒò¹ıÉÙ"))
+        print(paste0(saytimes,"ä¸ç¬¦åˆæ¡ä»¶ï¼Œlassoå›å½’å¾—åˆ°åŸºå› è¿‡å°‘"))
       }
     }
     if(length(uniSigExp)<5){
-      print(paste0(saytimes,"²»·ûºÏÌõ¼ş£¬µ¥ÒòËØCoxµÃµ½»ùÒò¹ıÉÙ"))
+      print(paste0(saytimes,"ä¸ç¬¦åˆæ¡ä»¶ï¼Œå•å› ç´ Coxå¾—åˆ°åŸºå› è¿‡å°‘"))
     }
     
   

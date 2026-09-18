@@ -1,6 +1,6 @@
 ###Video source: http://study.163.com/u/biowolf
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 #source("http://bioconductor.org/biocLite.R")   #source("https://bioconductor.org/biocLite.R")
 #biocLite("edgeR")
@@ -8,9 +8,9 @@
 foldChange=2
 padj=0.05
 
-setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\05.diff")                    #ÉèÖÃ¹¤×÷Ä¿Â¼
+setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\05.diff")                    #è®¾ç½®å·¥ä½œç›®å½•
 library("edgeR")
-rt=read.table("sampleExp.txt",sep="\t",header=T,check.names=F)  #¸Ä³É×Ô¼ºµÄÎÄ¼şÃû
+rt=read.table("sampleExp.txt",sep="\t",header=T,check.names=F)  #æ”¹æˆè‡ªå·±çš„æ–‡ä»¶å
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
 exp=rt[,2:ncol(rt)]
@@ -20,7 +20,7 @@ data=avereps(data)
 data=data[rowMeans(data)>1,]
 
 #group=c("normal","tumor","tumor","normal","tumor")
-group=c(rep("normal",49),rep("tumor",123))                         #°´ÕÕ°©Ö¢ºÍÕı³£ÑùÆ·ÊıÄ¿ĞŞ¸Ä
+group=c(rep("normal",49),rep("tumor",123))                         #æŒ‰ç…§ç™Œç—‡å’Œæ­£å¸¸æ ·å“æ•°ç›®ä¿®æ”¹
 design <- model.matrix(~group)
 y <- DGEList(counts=data,group=group)
 y <- calcNormFactors(y)
@@ -44,9 +44,9 @@ diffDown = diff[(diff$FDR < padj & (diff$logFC<(-foldChange))),]
 write.table(diffDown, file="down.xls",sep="\t",quote=F)
 
 normalizeExp=rbind(id=colnames(newData),newData)
-write.table(normalizeExp,file="normalizeExp.txt",sep="\t",quote=F,col.names=F)   #Êä³öËùÓĞ»ùÒòĞ£ÕıºóµÄ±í´ïÖµ£¨normalizeExp.txt£©
+write.table(normalizeExp,file="normalizeExp.txt",sep="\t",quote=F,col.names=F)   #è¾“å‡ºæ‰€æœ‰åŸºå› æ ¡æ­£åçš„è¡¨è¾¾å€¼ï¼ˆnormalizeExp.txtï¼‰
 diffExp=rbind(id=colnames(newData),newData[rownames(diffSig),])
-write.table(diffExp,file="diffmRNAExp.txt",sep="\t",quote=F,col.names=F)         #Êä³ö²îÒì»ùÒòĞ£ÕıºóµÄ±í´ïÖµ£¨diffmRNAExp.txt£©
+write.table(diffExp,file="diffmRNAExp.txt",sep="\t",quote=F,col.names=F)         #è¾“å‡ºå·®å¼‚åŸºå› æ ¡æ­£åçš„è¡¨è¾¾å€¼ï¼ˆdiffmRNAExp.txtï¼‰
 
 #volcano
 pdf(file="vol.pdf")
@@ -63,6 +63,6 @@ abline(h=0,lty=2,lwd=3)
 dev.off()
 
 ###Video source: http://study.163.com/u/biowolf
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 

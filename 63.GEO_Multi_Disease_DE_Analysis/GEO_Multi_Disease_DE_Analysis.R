@@ -1,4 +1,4 @@
-###¼ÓÔØR°ü
+###åŠ è½½RåŒ…
 library(readxl)
 library(tidyverse)
 library(GEOquery)
@@ -7,20 +7,20 @@ library(GEOquery)
 library(limma) 
 library(affy)
 library(stringr)
-###ÏÂÔØÊı¾İ£¬Èç¹ûÎÄ¼ş¼ĞÖĞÓĞ»áÖ±½Ó¶ÁÈë
+###ä¸‹è½½æ•°æ®ï¼Œå¦‚æœæ–‡ä»¶å¤¹ä¸­æœ‰ä¼šç›´æ¥è¯»å…¥
 gset = getGEO('GSE75380', destdir=".", AnnotGPL = T, getGPL = T)
 class(gset)
 gset[[1]]
 
-#¶ÁÈ¡Æ½Ì¨ÎÄ¼ş
+#è¯»å–å¹³å°æ–‡ä»¶
 GPL_data<- getGEO(filename ="GPL13497.soft.gz", AnnotGPL = T)
 GPL_data_11 <- Table(GPL_data)
 
-#ÌáÈ¡±í´ïÁ¿
+#æå–è¡¨è¾¾é‡
 exp <- exprs(gset[[1]])
 probe_name<-rownames(exp)
 
-#×ª»»ID
+#è½¬æ¢ID
 loc<-match(GPL_data_11[,1],probe_name)
 probe_exp<-exp[loc,]
 raw_geneid<-(as.matrix(GPL_data_11[,"GENE_SYMBOL"]))
@@ -32,20 +32,20 @@ gene_exp_matrix<-apply(exp_matrix,2,function(x) tapply(x,geneidfactor,mean))
 rownames(gene_exp_matrix)<-levels(geneidfactor)
 gene_exp_matrix=na.omit(gene_exp_matrix)
 
-#####¶ÁÈ¡·Ö×éĞÅÏ¢#####
+#####è¯»å–åˆ†ç»„ä¿¡æ¯#####
 pdata <- pData(gset[[1]])
 group_list=str_split(pdata$title,' ',simplify = T)[,1]
 table(group_list)
 group_list <- factor(group_list,ordered = F)
 table(group_list)
-#####½øĞĞÊı¾İ½ÃÕı#####
+#####è¿›è¡Œæ•°æ®çŸ«æ­£#####
 gene_exp_matrix_noemal=normalizeBetweenArrays(gene_exp_matrix)
 range(gene_exp_matrix_noemal)
-gene_exp_matrix_noemal=na.omit(gene_exp_matrix_noemal)#È¥³ıNAÁĞ
+gene_exp_matrix_noemal=na.omit(gene_exp_matrix_noemal)#å»é™¤NAåˆ—
 write.csv(gene_exp_matrix_noemal,file = "geo_exp.csv")
 range(gene_exp_matrix_noemal)
 
-#####½øĞĞ²îÒì·ÖÎö#####
+#####è¿›è¡Œå·®å¼‚åˆ†æ#####
 design=model.matrix(~0+group_list)
 fit=lmFit(gene_exp_matrix_noemal,design)
 fit=eBayes(fit)

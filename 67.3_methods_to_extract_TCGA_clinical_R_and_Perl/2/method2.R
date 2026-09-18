@@ -1,5 +1,5 @@
 
-#¶ÁÈ¡ËùÓĞxmlÎÄ¼ş
+#è¯»å–æ‰€æœ‰xmlæ–‡ä»¶
 library(XML)
 library(tidyverse)
 options(stringsAsFactors = F)
@@ -7,7 +7,7 @@ TCGA_clinical_xmls <- dir("TCGA_clinical/",
                     pattern = "*.xml$",
                     recursive = T)
 
-#°ÑÃ¿Ò»¸öxmlÎÄ¼ş×ª»»Îª¾ØÕó
+#æŠŠæ¯ä¸€ä¸ªxmlæ–‡ä»¶è½¬æ¢ä¸ºçŸ©é˜µ
 cldf <- function(x){
   xmlresult <- xmlParse(file.path("TCGA_clinical/",x))
   xmltop2 <- xmlRoot(xmlresult)
@@ -15,37 +15,37 @@ cldf <- function(x){
   return(t(TCGA_clinical))
 }
 
-#ÁÙ´²Êı¾İºÏ²¢
+#ä¸´åºŠæ•°æ®åˆå¹¶
 cl <- lapply(TCGA_clinical_xmls,cldf) 
 TCGA_cl <- t(do.call(cbind,cl)) 
 clinical <- data.frame(TCGA_cl)
-#ÌáÈ¡ÑùÆ·ID
+#æå–æ ·å“ID
 ID=clinical$bcr_patient_barcode
-#ÌáÈ¡ÄêÁä
+#æå–å¹´é¾„
 age=(clinical$days_to_birth)
-#ÌáÈ¡ĞÔ±ğ
+#æå–æ€§åˆ«
 gender=clinical$gender
-#ÌáÈ¡Éú´æÊ±¼ä
+#æå–ç”Ÿå­˜æ—¶é—´
 time=clinical$days_to_death
-#ÌáÈ¡Éú´æ×´Ì¬
+#æå–ç”Ÿå­˜çŠ¶æ€
 status=clinical$vital_status
-#ÌáÈ¡·ÖÆÚ
+#æå–åˆ†æœŸ
 stage_event=clinical$stage_event
-#ºÏ²¢ĞÅÏ¢
+#åˆå¹¶ä¿¡æ¯
 TCGA_merge=cbind(ID,
                  age,
                  gender,
                  time,
                  status,
                  stage_event)
-#É¾³ıÈ±Ê§Öµ
+#åˆ é™¤ç¼ºå¤±å€¼
 TCGA_merge[which(TCGA_merge=="")]=NA
 TCGA_clinical=na.omit(TCGA_merge)
 TCGA_clinical=as.data.frame(TCGA_clinical)
-#É¾³ıÖØ¸´ID
+#åˆ é™¤é‡å¤ID
 duplicated(TCGA_clinical$ID)
 TCGA_clinical<-TCGA_clinical[!duplicated(TCGA_clinical$ID),]
-#µ¼³öÎÄ¼ş
+#å¯¼å‡ºæ–‡ä»¶
 rownames(TCGA_clinical)=TCGA_clinical$ID
 TCGA_clinical=TCGA_clinical[,2:ncol(TCGA_clinical)]
 write.csv(TCGA_clinical,file = "TCGA_merge.csv",quote = F)

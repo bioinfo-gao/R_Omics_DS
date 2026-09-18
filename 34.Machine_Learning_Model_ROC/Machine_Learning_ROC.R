@@ -1,7 +1,7 @@
 
 
 library(pROC)                   
-inputFile="»úÆ÷Ñ§Ï°Ô¤²â½á¹û.txt"      
+inputFile="æœºå™¨å­¦ä¹ é¢„æµ‹ç»“æžœ.txt"      
 
 
 
@@ -9,7 +9,7 @@ rt=read.table(inputFile, header=T, sep="\t", check.names=F, row.names=1)
 y=gsub("(.*)\\-(.*)\\-(.*)\\-(.*)\\-(.*)", "\\5", row.names(rt))
 y=ifelse(y=="con", 0, 1)
 
-#»æÖÆROCÇúÏß
+#ç»˜åˆ¶ROCæ›²çº¿
 roc1=roc(y, as.numeric(rt[,2]))
 ci1=ci.auc(roc1, method="bootstrap")
 ciVec=as.numeric(ci1)

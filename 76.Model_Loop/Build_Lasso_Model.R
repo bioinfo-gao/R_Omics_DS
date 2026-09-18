@@ -8,7 +8,7 @@ library(limma)
 library(future.apply)
 library(parallel)
 library(caret)
-#¶ÁÈ¡Êı¾İ
+#è¯»å–æ•°æ®
 rt=read.table("diffExpLevel.txt",header=T,sep="\t",check.names=F,row.names=1)  
 cli=read.table("clinical.txt", header=T, sep="\t", check.names=F, row.names=1)
 cli$futime=cli$futime/365
@@ -22,16 +22,16 @@ data_orign_rt=rt
 data_orign_cli=cli
 workspace=getwd()
 setwd(workspace)
-#ÉèÖÃãĞÖµ
+#è®¾ç½®é˜ˆå€¼
 pFilter=0.05 
-#ÉèÖÃÄ£ĞÍ¶ÀÁ¢Ô¤ºóãĞÖµ
+#è®¾ç½®æ¨¡å‹ç‹¬ç«‹é¢„åé˜ˆå€¼
 modelpFdlter=0.05
-#ÉèÖÃÄ£ĞÍROCãĞÖµ
+#è®¾ç½®æ¨¡å‹ROCé˜ˆå€¼
 mod_AUC_value=0.7
-#ÉèÖÃÑ­»·´ÎÊı
+#è®¾ç½®å¾ªç¯æ¬¡æ•°
 loopTime=100
-#¿ªÊ¼Ñ­»·
-source("Ö÷´úÂë.R")
+#å¼€å§‹å¾ªç¯
+source("ä¸»ä»£ç .R")
 XXD_lasso_MOD_loop(data_orign_rt,data_orign_cli)
 
 

@@ -6,13 +6,13 @@ library("survival")
 rt=read.table("UniSigExp.txt",header=T,sep="\t",row.names=1)            
 rt$futime=rt$futime/365
 
-#¹¹½¨Ä£ĞÍ
+#æ„å»ºæ¨¡å‹
 x=as.matrix(rt[,c(3:ncol(rt))])
 y=data.matrix(Surv(rt$futime,rt$fustat))
 fit=glmnet(x, y, family = "cox")
 cvfit=cv.glmnet(x, y, family="cox")
 
-#Êä³öÏà¹Ø»ùÒòÏµÊı
+#è¾“å‡ºç›¸å…³åŸºå› ç³»æ•°
 coef=coef(fit, s = cvfit$lambda.min)
 index=which(coef != 0)
 actCoef=coef[index]
@@ -20,7 +20,7 @@ lassoGene=row.names(coef)[index]
 geneCoef=cbind(Gene=lassoGene,Coef=actCoef)
 write.table(geneCoef,file="geneCoef.txt",sep="\t",quote=F,row.names=F)
 
-#Êä³ö·çÏÕÖµ
+#è¾“å‡ºé£é™©å€¼
 trainFinalGeneExp=rt[,lassoGene]
 myFun=function(x){crossprod(as.numeric(x),actCoef)}
 trainScore=apply(trainFinalGeneExp,1,myFun)

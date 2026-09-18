@@ -22,7 +22,7 @@ data=avereps(data)
 data=as.data.frame(data)
 data=t(data)
 data.pca <- prcomp(data)
-# »æÖÆÖ÷³É·ÖµÄËéÊ¯Í¼
+# ç»˜åˆ¶ä¸»æˆåˆ†çš„ç¢çŸ³å›¾
 pdf(file = "screeplot.pdf",width = 10,height = 10)
 screeplot(data.pca, npcs = 10, type = "lines")
 dev.off()
@@ -31,16 +31,16 @@ groupcol<-ifelse(str_detect(group$group_list ,"T"), "red",
                               "blue")
 groupcol=cbind(group$X,groupcol)
 groupcol=as.data.frame(groupcol)
-#»æÖÆumapÍ¼
+#ç»˜åˆ¶umapå›¾
 pdf(file = "umap.pdf",height = 10,width = 10)
 plot(data.pca$x,cex = 2.5,main = "PCA analysis", 
      col = groupcol$groupcol,
      pch =rep(16,3))
-# Ìí¼Ó·Ö¸ôÏß
+# æ·»åŠ åˆ†éš”çº¿
 abline(h=0,v=0,lty=2,col="gray")
-# Ìí¼Ó±êÇ©
+# æ·»åŠ æ ‡ç­¾
 text(data.pca$x,labels =group1,pos = 4,offset = 0.5,cex = 0.8)
-# Ìí¼ÓÍ¼Àı
+# æ·»åŠ å›¾ä¾‹
 legend("bottomright",title = "Sample",inset = 0.01,
        legend = c("Tumor","Normal"),
        col = c("red","blue"),

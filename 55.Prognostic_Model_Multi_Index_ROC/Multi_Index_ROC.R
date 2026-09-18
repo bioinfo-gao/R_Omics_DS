@@ -3,8 +3,8 @@
 library(survivalROC)
 
 bioROC=function(riskFile=null,cliFile=null,outFile=null){
-		risk=read.table(riskFile,header=T,sep="\t",check.names=F,row.names=1)        #读取风险文件
-		cli=read.table(cliFile,sep="\t",check.names=F,header=T,row.names=1)          #读取临床文件
+		risk=read.table(riskFile,header=T,sep="\t",check.names=F,row.names=1)        #璇诲彇椋庨櫓鏂囦欢
+		cli=read.table(cliFile,sep="\t",check.names=F,header=T,row.names=1)          #璇诲彇涓村簥鏂囦欢
 		sameSample=intersect(row.names(cli),row.names(risk))
 		risk=risk[sameSample,]
 		cli=cli[sameSample,]
@@ -12,7 +12,7 @@ bioROC=function(riskFile=null,cliFile=null,outFile=null){
 		rocCol=rainbow(ncol(rt)-2)
 		aucText=c()
 		
-		#绘制risk score的ROC曲线
+		#缁樺埗risk score鐨凴OC鏇茬嚎
 		pdf(file=outFile,width=6,height=6)
 		par(oma=c(0.5,1,0,1),font.lab=1.5,font.axis=1.5)
 		roc=survivalROC(Stime=rt$futime, status=rt$fustat, marker = rt$riskScore, predict.time =1, method="KM")
@@ -22,7 +22,7 @@ bioROC=function(riskFile=null,cliFile=null,outFile=null){
 		aucText=c(aucText,paste0("risk score"," (AUC=",sprintf("%.3f",roc$AUC),")"))
 		abline(0,1)
 		
-		#绘制其他临床性状的ROC曲线
+		#缁樺埗鍏朵粬涓村簥鎬х姸鐨凴OC鏇茬嚎
 		j=1
 		for(i in colnames(rt[,3:(ncol(rt)-1)])){
 			roc=survivalROC(Stime=rt$futime, status=rt$fustat, marker = rt[,i], predict.time =1, method="KM")

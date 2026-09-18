@@ -2,8 +2,8 @@ use strict;
 use warnings;
 
 ###Video source: http://study.163.com/u/biowolf
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 my %hash1=();
 my %hash2=();
@@ -95,5 +95,5 @@ print "sample1: " . ($#samples1+1) . "\n";
 print "sample2: " . ($#samples2+1) . "\n";
 
 ###Video source: http://study.163.com/u/biowolf
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388

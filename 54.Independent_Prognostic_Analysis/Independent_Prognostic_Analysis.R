@@ -1,13 +1,13 @@
 
 library(survival)
-risk=read.table("Risk.txt",header=T,sep="\t",check.names=F,row.names=1)        #¶ÁÈ¡·çÏÕÎÄ¼ş
-cli=read.table("Clinical.txt",sep="\t",check.names=F,header=T,row.names=1)     #¶ÁÈ¡ÁÙ´²ÎÄ¼ş
+risk=read.table("Risk.txt",header=T,sep="\t",check.names=F,row.names=1)        #è¯»å–é£é™©æ–‡ä»¶
+cli=read.table("Clinical.txt",sep="\t",check.names=F,header=T,row.names=1)     #è¯»å–ä¸´åºŠæ–‡ä»¶
 sameSample=intersect(row.names(cli),row.names(risk))
 risk=risk[sameSample,]
 cli=cli[sameSample,]
 rt=cbind(futime=risk[,1],fustat=risk[,2],cli,riskScore=risk[,(ncol(risk)-1)])
 
-#µ¥ÒòËØ¶ÀÁ¢Ô¤ºó·ÖÎö
+#å•å› ç´ ç‹¬ç«‹é¢„ååˆ†æ
 uniTab=data.frame()
 for(i in colnames(rt[,3:ncol(rt)])){
 	 cox <- coxph(Surv(futime, fustat) ~ rt[,i], data = rt)
@@ -22,7 +22,7 @@ for(i in colnames(rt[,3:ncol(rt)])){
 }
 write.table(uniTab,file="unCox.txt",sep="\t",row.names=F,quote=F)
 
-#¶àÒòËØ¶ÀÁ¢Ô¤ºó·ÖÎö
+#å¤šå› ç´ ç‹¬ç«‹é¢„ååˆ†æ
 multiCox=coxph(Surv(futime, fustat) ~ ., data = rt)
 multiCoxSum=summary(multiCox)
 multiTab=data.frame()
@@ -35,7 +35,7 @@ multiTab=cbind(id=row.names(multiTab),multiTab)
 write.table(multiTab,file="muCox.txt",sep="\t",row.names=F,quote=F)
 
 
-############»æÖÆÉ­ÁÖÍ¼º¯Êı############
+############ç»˜åˆ¶æ£®æ—å›¾å‡½æ•°############
 bioForest=function(coxFile=null,forestFile=null,forestCol=null){
 		rt <- read.table(coxFile,header=T,sep="\t",row.names=1,check.names=F)
 		gene <- rownames(rt)

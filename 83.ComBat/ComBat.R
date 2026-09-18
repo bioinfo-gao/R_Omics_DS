@@ -1,10 +1,10 @@
 
 
-#ÒıÓÃ°ü
+#å¼•ç”¨åŒ…
 library(limma)
 library(sva)
 
-#¶ÁÈ¡»ùÒò±í´ïÎÄ¼ş,²¢¶ÔÊı¾İ½øĞĞ´¦Àí
+#è¯»å–åŸºå› è¡¨è¾¾æ–‡ä»¶,å¹¶å¯¹æ•°æ®è¿›è¡Œå¤„ç†
 rt=read.table("combined_RNAseq_TPM_log.txt", header=T, sep="\t", check.names=F)
 data=as.data.frame(rt)
 data0=avereps(data)

@@ -1,23 +1,23 @@
 ###Video source: http://study.163.com/u/biowolf
-######ÉúĞÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
 #install.packages("pheatmap")
 
-setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\06.pheatmap")      #ÉèÖÃ¹¤×÷Ä¿Â¼
+setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\06.pheatmap")      #è®¾ç½®å·¥ä½œç›®å½•
 rt=read.table("diffmRNAExp.txt",sep="\t",header=T,row.names=1,check.names=F)
 rt=log2(rt+1)
 rt[rt>15]=15
 
 library(pheatmap)
-Type=c(rep("Primary",49),rep("Node",123))    #ĞŞ¸ÄÕı³£ºÍ°©Ö¢ÑùÆ·ÊıÄ¿
+Type=c(rep("Primary",49),rep("Node",123))    #ä¿®æ”¹æ­£å¸¸å’Œç™Œç—‡æ ·å“æ•°ç›®
 names(Type)=colnames(rt)
 Type=as.data.frame(Type)
 
 tiff(file="heatmap.tiff",
-       width = 45,            #Í¼Æ¬µÄ¿í¶È
-       height =50,            #Í¼Æ¬µÄ¸ß¶È
+       width = 45,            #å›¾ç‰‡çš„å®½åº¦
+       height =50,            #å›¾ç‰‡çš„é«˜åº¦
        units ="cm",
        compression="lzw",
        bg="white",
@@ -31,6 +31,6 @@ pheatmap(rt, annotation=Type,
 dev.off()
 
 ###Video source: http://study.163.com/u/biowolf
-######ÉúĞÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388

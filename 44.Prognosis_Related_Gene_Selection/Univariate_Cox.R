@@ -26,8 +26,8 @@ uniSigExp=cbind(id=row.names(uniSigExp),uniSigExp)
 write.table(uniSigExp,file="UniSigExp.txt",sep="\t",row.names=F,quote=F)
 
 
-######»æÖÆÉ­ÁÖÍ¼######
-#¶ÁÈ¡ÊäÈëÎÄ¼ş
+######ç»˜åˆ¶æ£®æ—å›¾######
+#è¯»å–è¾“å…¥æ–‡ä»¶
 rt <- read.table("UniCox.txt",header=T,sep="\t",row.names=1,check.names=F)
 gene <- rownames(rt)
 hr <- sprintf("%.3f",rt$"HR")
@@ -36,14 +36,14 @@ hrHigh <- sprintf("%.3f",rt$"HR.95H")
 Hazard.ratio <- paste0(hr,"(",hrLow,"-",hrHigh,")")
 pVal <- ifelse(rt$pvalue<0.001, "<0.001", sprintf("%.3f", rt$pvalue))
 
-#Êä³öÍ¼ĞÎ
+#è¾“å‡ºå›¾å½¢
 pdf(file="unforest.pdf", width = 6,height = 4.5)
 n <- nrow(rt)
 nRow <- n+1
 ylim <- c(1,nRow)
 layout(matrix(c(1,2),nc=2),width=c(3,2))
 
-#»æÖÆÉ­ÁÖÍ¼×ó±ßµÄ»ùÒòĞÅÏ¢
+#ç»˜åˆ¶æ£®æ—å›¾å·¦è¾¹çš„åŸºå› ä¿¡æ¯
 xlim = c(0,3)
 par(mar=c(4,2.5,2,1))
 plot(1,xlim=xlim,ylim=ylim,type="n",axes=F,xlab="",ylab="")
@@ -52,7 +52,7 @@ text(0,n:1,gene,adj=0,cex=text.cex)
 text(1.5-0.5*0.2,n:1,pVal,adj=1,cex=text.cex);text(1.5-0.5*0.2,n+1,'pvalue',cex=text.cex,font=2,adj=1)
 text(3,n:1,Hazard.ratio,adj=1,cex=text.cex);text(3,n+1,'Hazard ratio',cex=text.cex,font=2,adj=1,)
 
-#»æÖÆÉ­ÁÖÍ¼
+#ç»˜åˆ¶æ£®æ—å›¾
 par(mar=c(4,1,2,1),mgp=c(2,0.5,0))
 xlim = c(0,max(as.numeric(hrLow),as.numeric(hrHigh)))
 plot(1,xlim=xlim,ylim=ylim,type="n",axes=F,ylab="",xaxs="i",xlab="Hazard ratio")

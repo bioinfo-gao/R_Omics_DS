@@ -1,4 +1,4 @@
-###¼ÓÔØR°ü
+###åŠ è½½RåŒ…
 library(readxl)
 library(tidyverse)
 library(GEOquery)
@@ -10,7 +10,7 @@ library(stringr)
 library(FactoMineR)
 library(factoextra)
 library(sva)
-###ÏÂÔØÊı¾İ£¬Èç¹ûÎÄ¼ş¼ĞÖĞÓĞ»áÖ±½Ó¶ÁÈë
+###ä¸‹è½½æ•°æ®ï¼Œå¦‚æœæ–‡ä»¶å¤¹ä¸­æœ‰ä¼šç›´æ¥è¯»å…¥
 gset = getGEO('GSE205185', destdir=".", AnnotGPL = T, getGPL = T)
 class(gset)
 gset[[1]]
@@ -20,18 +20,18 @@ gset2[[1]]
 gset3 = getGEO('GSE20711', destdir=".", AnnotGPL = T, getGPL = T)
 class(gset3)
 gset3[[1]]
-#ÌáÈ¡×Ó¼¯
+#æå–å­é›†
 plf1<-gset[[1]]@annotation
 plf2<-gset2[[1]]@annotation
 plf3<-gset3[[1]]@annotation
-#ÌáÈ¡Æ½Ì¨ÎÄ¼ş
+#æå–å¹³å°æ–‡ä»¶
 GPL_data<- getGEO(filename ="GPL21185.soft.gz", AnnotGPL = T)
 GPL_data_11 <- Table(GPL_data)
 GPL_data1<- getGEO(filename ="GPL570.annot.gz", AnnotGPL = T)
 GPL_data_22 <- Table(GPL_data1)
 GPL_data2<- getGEO(filename ="GPL570.annot.gz", AnnotGPL = T)
 GPL_data_33 <- Table(GPL_data2)
-#ÌáÈ¡±í´ïÁ¿
+#æå–è¡¨è¾¾é‡
 exp <- exprs(gset[[1]])
 probe_name<-rownames(exp)
 exp2 <- exprs(gset2[[1]])
@@ -41,7 +41,7 @@ probe_name3<-rownames(exp3)
 
 ###############################################
 ###########                       #############
-###########       Êı¾İ1×ªID       #############
+###########       æ•°æ®1è½¬ID       #############
 ###########                       #############
 ###############################################
 loc<-match(GPL_data_11[,1],probe_name)
@@ -57,7 +57,7 @@ gene_exp_matrix=na.omit(gene_exp_matrix)
 
 ###############################################
 ###########                       #############
-###########       Êı¾İ2×ªID       #############
+###########       æ•°æ®2è½¬ID       #############
 ###########                       #############
 ###############################################
 loc2<-match(GPL_data_22[,1],probe_name2)
@@ -73,7 +73,7 @@ gene_exp_matrix2=na.omit(gene_exp_matrix2)
 
 ###############################################
 ###########                       #############
-###########       Êı¾İ3×ªID       #############
+###########       æ•°æ®3è½¬ID       #############
 ###########                       #############
 ###############################################
 loc3<-match(GPL_data_33[,1],probe_name3)
@@ -87,13 +87,13 @@ gene_exp_matrix3<-apply(exp_matrix3,2,function(x) tapply(x,geneidfactor3,mean))
 rownames(gene_exp_matrix3)<-levels(geneidfactor3)
 gene_exp_matrix3=na.omit(gene_exp_matrix3)
 
-#Êı¾İ½áºÏ
+#æ•°æ®ç»“åˆ
 geo_exp_1=as.data.frame(gene_exp_matrix)
-geo_exp_1=normalizeBetweenArrays(geo_exp_1)#½øĞĞ×éÄÚÊı¾İ¹éÒ»»¯
+geo_exp_1=normalizeBetweenArrays(geo_exp_1)#è¿›è¡Œç»„å†…æ•°æ®å½’ä¸€åŒ–
 geo_exp_2=as.data.frame(gene_exp_matrix2)
-geo_exp_2=normalizeBetweenArrays(geo_exp_2)#½øĞĞ×éÄÚÊı¾İ¹éÒ»»¯
+geo_exp_2=normalizeBetweenArrays(geo_exp_2)#è¿›è¡Œç»„å†…æ•°æ®å½’ä¸€åŒ–
 geo_exp_3=as.data.frame(gene_exp_matrix3)
-geo_exp_3=normalizeBetweenArrays(geo_exp_3)#½øĞĞ×éÄÚÊı¾İ¹éÒ»»¯
+geo_exp_3=normalizeBetweenArrays(geo_exp_3)#è¿›è¡Œç»„å†…æ•°æ®å½’ä¸€åŒ–
 sameSample=intersect(rownames(geo_exp_1), rownames(geo_exp_2))
 sameSample=as.data.frame(sameSample)
 sameSample=intersect(rownames(geo_exp_3), sameSample$sameSample)
@@ -102,8 +102,8 @@ gene_exp2=geo_exp_2[sameSample,,drop=F]
 gene_exp3=geo_exp_3[sameSample,,drop=F]
 bindgeo=cbind(gene_exp1,gene_exp2,gene_exp3)
 
-#####¶ÁÈ¡·Ö×éĞÅÏ¢#####
-##Êı¾İ1
+#####è¯»å–åˆ†ç»„ä¿¡æ¯#####
+##æ•°æ®1
 pdata <- pData(gset[[1]])
 group_list <- ifelse(str_detect(pdata$source_name_ch1,"primary breast tumour"), "T",
                      "N")
@@ -112,7 +112,7 @@ group_list = factor(group_list,
                     levels = c("T","N"))
 group_list
 pdata$group=group_list
-##Êı¾İ2
+##æ•°æ®2
 pdata2 <- pData(gset2[[1]])
 group_list2 <- ifelse(str_detect(pdata2$source_name_ch1,"Breast normal tissue from a breast cancer patient"), "N",
                      "T")
@@ -121,7 +121,7 @@ group_list2 = factor(group_list2,
                     levels = c("N","T"))
 group_list2
 pdata2$group=group_list2
-##Êı¾İ3
+##æ•°æ®3
 pdata3 <- pData(gset3[[1]])
 group_list3 <- ifelse(str_detect(pdata3$source_name_ch1,"Breast tumor"), "T",
                       "N")
@@ -131,7 +131,7 @@ group_list3 = factor(group_list3,
 group_list3
 pdata3$group=group_list3
 
-#####·Ö×éĞÅÏ¢ºÏ²¢#####
+#####åˆ†ç»„ä¿¡æ¯åˆå¹¶#####
 group1<-(as.matrix(pdata[,"group"]))
 row.names(group1)=rownames(pdata)
 colnames(group1)="group"
@@ -145,37 +145,37 @@ talgroup=as.data.frame(rbind(group1,group2,group3))
 talgroup_list=factor(talgroup$group,levels = c("N","T"))
 write.csv(talgroup,file = "group.csv")
 
-#####¶à¸öÊı¾İÈ¥Åú´Î#####
-##´¦Àí·Ö×é
+#####å¤šä¸ªæ•°æ®å»æ‰¹æ¬¡#####
+##å¤„ç†åˆ†ç»„
 batchType=c(rep(1,22),rep(2,66),rep(3,90))
 modType=c(rep("T",12),rep("N",3),rep("T",2),rep("N",1),rep("T",3),rep("N",1),
           rep("N",12),rep("T",54),
           rep("T",88),rep("N",2))
 mod = model.matrix(~modType)
 pdf(file = "pre_normal.pdf",width = 10,height = 10)
-boxplot(bindgeo,outline=T, notch=T,col=talgroup_list, las=2)#»æÖÆÈ¥Åú´ÎÇ°ÏäÏßÍ¼
+boxplot(bindgeo,outline=T, notch=T,col=talgroup_list, las=2)#ç»˜åˆ¶å»æ‰¹æ¬¡å‰ç®±çº¿å›¾
 dev.off()
-#»æÖÆÈ¥Åú´ÎÇ°PCAÍ¼
+#ç»˜åˆ¶å»æ‰¹æ¬¡å‰PCAå›¾
 dat.pca <- PCA(as.data.frame(t(bindgeo)), graph = FALSE)
 pca_plot <- fviz_pca_ind(dat.pca,
-                         geom.ind = "points",#½öÏÔÊ¾"µã(points)"£¨µ«²»ÊÇ¡°ÎÄ±¾(text)¡±£©£¨show "points" only (but not "text")£©
+                         geom.ind = "points",#ä»…æ˜¾ç¤º"ç‚¹(points)"ï¼ˆä½†ä¸æ˜¯â€œæ–‡æœ¬(text)â€ï¼‰ï¼ˆshow "points" only (but not "text")ï¼‰
                          col.ind = talgroup_list,
                          palette = c("#00AFBB", "#E7B800"),
                          addEllipses = TRUE, 
                          legend.title = "Groups")
 pca_plot
 ggsave(plot = pca_plot,filename ="prenormal_PCA.pdf")
-#####ComBat·¨#####
-bindgeo_ComBat=ComBat(dat=bindgeo, batch=batchType, #Ê¹ÓÃComBat·¨È¥Åú´Î
+#####ComBatæ³•#####
+bindgeo_ComBat=ComBat(dat=bindgeo, batch=batchType, #ä½¿ç”¨ComBatæ³•å»æ‰¹æ¬¡
                       mod=mod, par.prior=TRUE)
 
 pdf(file = "ComBatnormal.pdf",width = 10,height = 10)
-boxplot(bindgeo_ComBat,outline=T, notch=T,col=talgroup_list, las=2)#»æÖÆÈ¥Åú´ÎºóÏäÏßÍ¼
+boxplot(bindgeo_ComBat,outline=T, notch=T,col=talgroup_list, las=2)#ç»˜åˆ¶å»æ‰¹æ¬¡åç®±çº¿å›¾
 dev.off()
-#»æÖÆÈ¥Åú´ÎºóPCAÍ¼
+#ç»˜åˆ¶å»æ‰¹æ¬¡åPCAå›¾
 dat.pca2 <- PCA(as.data.frame(t(bindgeo_ComBat)), graph = FALSE)
 pca_plot2 <- fviz_pca_ind(dat.pca2,
-                         geom.ind = "points",#½öÏÔÊ¾"µã(points)"£¨µ«²»ÊÇ¡°ÎÄ±¾(text)¡±£©£¨show "points" only (but not "text")£©
+                         geom.ind = "points",#ä»…æ˜¾ç¤º"ç‚¹(points)"ï¼ˆä½†ä¸æ˜¯â€œæ–‡æœ¬(text)â€ï¼‰ï¼ˆshow "points" only (but not "text")ï¼‰
                          col.ind = talgroup_list,
                          palette = c("#00AFBB", "#E7B800"),
                          addEllipses = TRUE, 
@@ -183,15 +183,15 @@ pca_plot2 <- fviz_pca_ind(dat.pca2,
 pca_plot2
 ggsave(plot = pca_plot2,filename ="afternormal_PCA.pdf")
 
-#####removeBatchEffect·¨#####
+#####removeBatchEffectæ³•#####
 bindgeo_remove=removeBatchEffect(bindgeo,batchType)
 pdf(file = "removenormal.pdf",width = 10,height = 10)
-boxplot(bindgeo_remove,outline=T, notch=T,col=talgroup_list, las=2)#»æÖÆÈ¥Åú´ÎºóÏäÏßÍ¼
+boxplot(bindgeo_remove,outline=T, notch=T,col=talgroup_list, las=2)#ç»˜åˆ¶å»æ‰¹æ¬¡åç®±çº¿å›¾
 dev.off()
-#»æÖÆÈ¥Åú´ÎºóPCAÍ¼
+#ç»˜åˆ¶å»æ‰¹æ¬¡åPCAå›¾
 dat.pca3 <- PCA(as.data.frame(t(bindgeo_remove)), graph = FALSE)
 pca_plot3 <- fviz_pca_ind(dat.pca3,
-                          geom.ind = "points",#½öÏÔÊ¾"µã(points)"£¨µ«²»ÊÇ¡°ÎÄ±¾(text)¡±£©£¨show "points" only (but not "text")£©
+                          geom.ind = "points",#ä»…æ˜¾ç¤º"ç‚¹(points)"ï¼ˆä½†ä¸æ˜¯â€œæ–‡æœ¬(text)â€ï¼‰ï¼ˆshow "points" only (but not "text")ï¼‰
                           col.ind = talgroup_list,
                           palette = c("#00AFBB", "#E7B800"),
                           addEllipses = TRUE, 
@@ -200,17 +200,17 @@ pca_plot3
 ggsave(plot = pca_plot3,filename ="afternormal_PCA_remove.pdf")
 
 
-#####Ñ¡ÔñĞ£ÕıºóµÄÊı¾İ¼¯½øĞĞºóĞøµÄ²îÒì·ÖÎö#####
+#####é€‰æ‹©æ ¡æ­£åçš„æ•°æ®é›†è¿›è¡Œåç»­çš„å·®å¼‚åˆ†æ#####
 
-###°´ÕÕÊµ¼ÊÇé¿ö½øĞĞÑ¡Ôñ
-bindgeo_after=bindgeo_ComBat #Ñ¡ÔñComBat·¨
+###æŒ‰ç…§å®é™…æƒ…å†µè¿›è¡Œé€‰æ‹©
+bindgeo_after=bindgeo_ComBat #é€‰æ‹©ComBatæ³•
 
-bindgeo_after=bindgeo_remove #Ñ¡ÔñremoveBatchEffect·¨
+bindgeo_after=bindgeo_remove #é€‰æ‹©removeBatchEffectæ³•
 
 
-#####½øĞĞ²îÒì·ÖÎö#####
+#####è¿›è¡Œå·®å¼‚åˆ†æ#####
 design=model.matrix(~talgroup_list)
-fit=lmFit(bindgeo_after,design)#ÕâÀïÒª×¢Òâ£¬·Ö×éµÄÑù±¾Óë¾ØÕóÑù±¾ÊÇ·ñÏà·û£¬²»Ïà·ûÔòÈ¥ÎÄ¼şÖĞµ÷ÕûÈ»ºó¶ÁÈë
+fit=lmFit(bindgeo_after,design)#è¿™é‡Œè¦æ³¨æ„ï¼Œåˆ†ç»„çš„æ ·æœ¬ä¸çŸ©é˜µæ ·æœ¬æ˜¯å¦ç›¸ç¬¦ï¼Œä¸ç›¸ç¬¦åˆ™å»æ–‡ä»¶ä¸­è°ƒæ•´ç„¶åè¯»å…¥
 fit=eBayes(fit)
 deg=topTable(fit,coef=2,number = Inf)
 write.table(deg, file = "deg_all.txt",sep = "\t",row.names = T,col.names = NA,quote = F)

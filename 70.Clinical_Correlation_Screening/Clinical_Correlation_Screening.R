@@ -1,24 +1,24 @@
 
-#ÉèÖÃ¹¤×÷Ä¿Â¼
+#è®¾ç½®å·¥ä½œç›®å½•
 setwd("")  
 
-#¶ÁÈ¡±í´ïÊý¾ÝÎÄ¼þ
+#è¯»å–è¡¨è¾¾æ•°æ®æ–‡ä»¶
 exp=read.table("rocSigExp.txt",sep="\t",header=T,check.names=F,row.names=1)     
 
-#¶ÁÈ¡ÁÙ´²Êý¾ÝÎÄ¼þ
+#è¯»å–ä¸´åºŠæ•°æ®æ–‡ä»¶
 cli=read.table("clinical_after.txt",sep="\t",header=T,check.names=F,row.names=1) 
 
-#ÒÔ65ËêÎªÄêÁä»®·Ö
+#ä»¥65å²ä¸ºå¹´é¾„åˆ’åˆ†
 cli[,"Age"]=ifelse(cli[,"Age"]=="unknow", "unknow", ifelse(cli[,"Age"]>65,">65","<=65"))
 
-#ºÏ²¢Êý¾Ý
+#åˆå¹¶æ•°æ®
 exp=exp[,3:ncol(exp)]
 samSample=intersect(row.names(exp),row.names(cli))
 exp=exp[samSample,]
 cli=cli[samSample,]
 pFilter=0.05   
 
-#ÁÙ´²Ïà¹ØÐÔ·ÖÎö£¬Êä³ö±í¸ñ
+#ä¸´åºŠç›¸å…³æ€§åˆ†æžï¼Œè¾“å‡ºè¡¨æ ¼
 outTab=c()
 outTab=rbind(outTab,c("id",colnames(cli),"SigNum"))
 colnames(outTab)=c("id",colnames(cli),"SigNum")

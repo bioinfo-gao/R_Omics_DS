@@ -44,7 +44,7 @@ remotes::install_github(repo = 'VanLoo-lab/ascat/ASCAT')
 If you use `maftools` functions for CNV analysis, please cite the ASCAT publication
 
 ------------------------------------------------------------------------
-***Van Loo P, Nordgard SH, Lingjærde OC, et al. Allele-specific copy number analysis of tumors. Proc Natl Acad Sci U S A. 2010;107(39):16910-16915. doi:10.1073/pnas.1009843107***
+***Van Loo P, Nordgard SH, Lingj憆de OC, et al. Allele-specific copy number analysis of tumors. Proc Natl Acad Sci U S A. 2010;107(39):16910-16915. doi:10.1073/pnas.1009843107***
 ------------------------------------------------------------------------
 
 # Step-1: Get nucleotide counts for genetic markers 

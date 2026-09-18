@@ -11,7 +11,7 @@ library(beepr)
 library(gplots)
 library(pheatmap)
 
-#####´¦ÀíTCGAÊı¾İ#####
+#####å¤„ç†TCGAæ•°æ®#####
 rt=read.table("combined_RNAseq_FPKM.txt",sep="\t",header=T,check.names=F)
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
@@ -47,7 +47,7 @@ colnames(TCGA_genes)="genes"
 rownames(TCGA_genes)=TCGA_genes$genes
 write.table(TCGA_diffLab,file="TCGA_difflab.xls",sep="\t",quote=F)
 
-#####´¦ÀíGEOÊı¾İ#####
+#####å¤„ç†GEOæ•°æ®#####
 geo=read.csv("geo_exp.csv",header=T,check.names=F)
 geo=as.matrix(geo)
 rownames(geo)=geo[,1]
@@ -78,7 +78,7 @@ geo_genes<-as.data.frame(row.names(geo_diffLab))
 colnames(geo_genes)="genes"
 rownames(geo_genes)=geo_genes$genes
 
-#####ÌáÈ¡¹²ÓĞ»ùÒò»æÖÆÎ¤¶÷Í¼#####
+#####æå–å…±æœ‰åŸºå› ç»˜åˆ¶éŸ¦æ©å›¾#####
 genesList=list()
 geneNames_TCGA=as.vector(TCGA_genes[,1])       
 uniq_TCGAGene=unique(geneNames_TCGA)       
@@ -91,10 +91,10 @@ venn.plot <-venn.diagram(genesList,
                          fill=mycol[1:length(genesList)], 
                          filename=NULL, 
                          cat.pos = c(360, 360),
-                         scaled =FALSE,#Ô²È¦´óĞ¡ÊÇ·ñ°´Êı×Ö´óĞ¡¸Ä±ä
-                         cex = 2,        #1 2 ÇøÓòÄÚ²¿Êı×ÖµÄ×ÖÌå´óĞ¡ 
-                         cat.cex = 2,    # ·ÖÀàÃû³ÆµÄ×ÖÌå´óĞ¡ 
-                         cat.dist = 0.015,   #·ÖÀàÃû³Æ¾àÀë±ßµÄ¾àÀë Êµ¼Êµ÷Õû 
+                         scaled =FALSE,#åœ†åœˆå¤§å°æ˜¯å¦æŒ‰æ•°å­—å¤§å°æ”¹å˜
+                         cex = 2,        #1 2 åŒºåŸŸå†…éƒ¨æ•°å­—çš„å­—ä½“å¤§å° 
+                         cat.cex = 2,    # åˆ†ç±»åç§°çš„å­—ä½“å¤§å° 
+                         cat.dist = 0.015,   #åˆ†ç±»åç§°è·ç¦»è¾¹çš„è·ç¦» å®é™…è°ƒæ•´ 
                          )
 pdf("TCGAandGEO_venn.pdf");
 grid.draw(venn.plot);
@@ -103,7 +103,7 @@ intersectGenes=Reduce(intersect,genesList)
 write.table(file="TCGAandGEO_Genes.txt", intersectGenes, sep="\t", quote=F, col.names=F, row.names=F)
 
 
-#####·Ö±ğÌáÈ¡¹²Í¬²îÒì»ùÒòµÄ±í´ï¾ØÕó#####
+#####åˆ†åˆ«æå–å…±åŒå·®å¼‚åŸºå› çš„è¡¨è¾¾çŸ©é˜µ#####
 TCGA_deg_exp=rt[intersectGenes,,drop=F]
 GEO_deg_exp=data2_geo[intersectGenes,,drop=F]
 write.csv(file="TCGA_deg_exp.csv", TCGA_deg_exp)

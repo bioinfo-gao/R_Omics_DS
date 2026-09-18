@@ -1,10 +1,10 @@
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388
 
-inputFile="clinicalExp.txt"                                     #ÊäÈëÎÄ¼þ
-setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\08.ks")         #¹¤×÷Ä¿Â¼
+inputFile="clinicalExp.txt"                                     #è¾“å…¥æ–‡ä»¶
+setwd("C:\\Users\\lexb4\\Desktop\\TCGAclinical\\08.ks")         #å·¥ä½œç›®å½•
 geneName="MPPED1"
 clinical="stage"
 
@@ -55,6 +55,6 @@ text((1+n)/2,ySeg,labels=paste("p=",pval,sep=""),cex=1.5,pos=3)
 dev.off()
 
 ###Video source: http://study.163.com/u/biowolf
-######ÉúÐÅÉÌ³Ç£ºhttp://www.biowolf.cn/shop/
-######ËÙ¿ÆÉúÎï: http://www.biowolf.cn/
-######×÷ÕßQQ£º2749657388
+######ç”Ÿä¿¡å•†åŸŽï¼šhttp://www.biowolf.cn/shop/
+######é€Ÿç§‘ç”Ÿç‰©: http://www.biowolf.cn/
+######ä½œè€…QQï¼š2749657388

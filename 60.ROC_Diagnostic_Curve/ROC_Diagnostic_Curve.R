@@ -5,9 +5,9 @@ library(pROC)
 library(limma)
 library(tidyverse)
 
-#ÊäÈëÄ¿±ê»ùÒò
+#è¾“å…¥ç›®æ ‡åŸºå› 
 gene="THBS2"
-#¶ÁÈ¡ÊäÈëÎÄ¼þ
+#è¯»å–è¾“å…¥æ–‡ä»¶
 rt=read.table(file ="combined_RNAseq_counts.txt" , header=T, sep="\t", check.names=F)
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
@@ -15,8 +15,8 @@ exp=rt[,2:ncol(rt)]
 dimnames=list(rownames(exp),colnames(exp))
 data=matrix(as.numeric(as.matrix(exp)), nrow=nrow(exp), dimnames=dimnames)
 data=as.data.frame(data)
-#ÒÔ01AºÍ11A·Ö×é£¬Õý³£·ÅÇ°Ãæ£¬Ö×Áö·ÅºóÃæ
-exp_data_T = data%>% dplyr::select(str_which(colnames(.), "-01A")) # Æ¥ÅäÁÐÃû»òÓÃÏÂÊ¾Ð´·¨
+#ä»¥01Aå’Œ11Aåˆ†ç»„ï¼Œæ­£å¸¸æ”¾å‰é¢ï¼Œè‚¿ç˜¤æ”¾åŽé¢
+exp_data_T = data%>% dplyr::select(str_which(colnames(.), "-01A")) # åŒ¹é…åˆ—åæˆ–ç”¨ä¸‹ç¤ºå†™æ³•
 nT = ncol(exp_data_T) 
 exp_data_N = data%>% dplyr::select(str_which(colnames(.), "-11A"))
 nN = ncol(exp_data_N) 
@@ -32,7 +32,7 @@ data$group=group$group
 y=data$group
 
 
-#»æÖÆROCÇúÏß
+#ç»˜åˆ¶ROCæ›²çº¿
 roc1=roc(y, as.numeric(data[,gene]))
 ci1=ci.auc(roc1, method="bootstrap")
 ciVec=as.numeric(ci1)

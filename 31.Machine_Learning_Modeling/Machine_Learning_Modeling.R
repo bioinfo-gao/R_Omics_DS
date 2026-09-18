@@ -3,11 +3,11 @@ library(limma)
 library(neuralnet)
 library(NeuralNetTools)
 
-expFile="LASSO.geneExp.txt"     #ÌØÕ÷»ùÒò±í´ïÊı¾İÎÄ¼ş
-diffFile="diff.txt"         #²îÒì»ùÒòµÄÎÄ¼ş
+expFile="LASSO.geneExp.txt"     #ç‰¹å¾åŸºå› è¡¨è¾¾æ•°æ®æ–‡ä»¶
+diffFile="diff.txt"         #å·®å¼‚åŸºå› çš„æ–‡ä»¶
 
 
-#¶ÁÈ¡±í´ïÎÄ¼ş£¬²¢¶ÔÊäÈëÎÄ¼şÕûÀí
+#è¯»å–è¡¨è¾¾æ–‡ä»¶ï¼Œå¹¶å¯¹è¾“å…¥æ–‡ä»¶æ•´ç†
 rt=read.table(expFile, header=T, sep="\t", check.names=F)
 rt=as.matrix(rt)
 rownames(rt)=rt[,1]
@@ -16,45 +16,45 @@ dimnames=list(rownames(exp),colnames(exp))
 data=matrix(as.numeric(as.matrix(exp)),nrow=nrow(exp),dimnames=dimnames)
 data=avereps(data)
 
-#¶ÁÈ¡²îÒì»ùÒòµÄÎÄ¼ş
+#è¯»å–å·®å¼‚åŸºå› çš„æ–‡ä»¶
 diffRT=read.table(diffFile, header=T, sep="\t", check.names=F, row.names=1)
 diffRT=diffRT[row.names(data),]
 
-#»ùÒòÆÀ·Ö
+#åŸºå› è¯„åˆ†
 dataUp=data[diffRT[,"logFC"]>0,]
 dataDown=data[diffRT[,"logFC"]<0,]
 dataUp2=t(apply(dataUp,1,function(x)ifelse(x>median(x),1,0)))
 dataDown2=t(apply(dataDown,1,function(x)ifelse(x>median(x),0,1)))
 
-#Êä³ö»ùÒòÆÀ·ÖµÄ½á¹û
+#è¾“å‡ºåŸºå› è¯„åˆ†çš„ç»“æœ
 outTab=rbind(dataUp2, dataDown2)
 outTab=rbind(id=colnames(outTab), outTab)
-write.table(outTab, file="»ùÒòÆÀ·Ö.txt", sep="\t", quote=F, col.names=F)
+write.table(outTab, file="åŸºå› è¯„åˆ†.txt", sep="\t", quote=F, col.names=F)
 
 
 
-#####¹¹½¨Ä£ĞÍ
-inputFile="»ùÒòÆÀ·Ö.txt"       #ÊäÈëÎÄ¼ş
-#¶ÁÈ¡ÊäÈëÎÄ¼ş
+#####æ„å»ºæ¨¡å‹
+inputFile="åŸºå› è¯„åˆ†.txt"       #è¾“å…¥æ–‡ä»¶
+#è¯»å–è¾“å…¥æ–‡ä»¶
 data=read.table(inputFile, header=T, sep="\t", check.names=F, row.names=1)
 data=as.data.frame(t(data))
 
-#»ñÈ¡ÑùÆ··Ö×éĞÅÏ¢
+#è·å–æ ·å“åˆ†ç»„ä¿¡æ¯
 group=gsub("(.*)\\-(.*)\\-(.*)\\-(.*)\\-(.*)", "\\5", row.names(data))
 data$con=ifelse(group=="con", 1, 0)
 data$treat=ifelse(group=="treat", 1, 0)
 
-#Éñ¾­ÍøÂçÄ£ĞÍ
+#ç¥ç»ç½‘ç»œæ¨¡å‹
 fit=neuralnet(con+treat~., data, hidden=5)
 fit$result.matrix
 fit$weight
 #plot(fit)
 
-pdf(file="Éñ¾­ÍøÂçÄ£ĞÍ.pdf", width=10, height=10)
+pdf(file="ç¥ç»ç½‘ç»œæ¨¡å‹.pdf", width=10, height=10)
 plotnet(fit)
 dev.off()
 
-#ÀûÓÃÄ£ĞÍÔ¤²â½á¹û
+#åˆ©ç”¨æ¨¡å‹é¢„æµ‹ç»“æœ
 net.predict=compute(fit, data)$net.result
 net.prediction=c("con", "treat")[apply(net.predict, 1, which.max)]
 predict.table=table(group, net.prediction)
@@ -64,7 +64,7 @@ treatAccuracy=predict.table[2,2]/(predict.table[2,1]+predict.table[2,2])
 paste0("Con accuracy: ", sprintf("%.3f", conAccuracy))
 paste0("Treat accuracy: ", sprintf("%.3f", treatAccuracy))
 
-#Êä³öÔ¤²â½á¹û
+#è¾“å‡ºé¢„æµ‹ç»“æœ
 colnames(net.predict)=c("con", "treat")
 outTab=rbind(id=colnames(net.predict), net.predict)
 write.table(outTab, file="neural.predict.txt", sep="\t", quote=F, col.names=F)

@@ -1,4 +1,4 @@
-###¼ÓÔØR°ü
+###åŠ è½½RåŒ…
 library(readxl)
 library(tidyverse)
 library(GEOquery)
@@ -7,20 +7,20 @@ library(GEOquery)
 library(limma) 
 library(affy)
 library(stringr)
-###ÏÂÔØÊı¾İ£¬Èç¹ûÎÄ¼ş¼ĞÖĞÓĞ»áÖ±½Ó¶ÁÈë
+###ä¸‹è½½æ•°æ®ï¼Œå¦‚æœæ–‡ä»¶å¤¹ä¸­æœ‰ä¼šç›´æ¥è¯»å…¥
 gset = getGEO('GSE205185', destdir=".", AnnotGPL = T, getGPL = T)
 class(gset)
 gset[[1]]
 
-#¶ÁÈ¡Æ½Ì¨ÎÄ¼ş
+#è¯»å–å¹³å°æ–‡ä»¶
 GPL_data<- getGEO(filename ="GPL21185.soft.gz", AnnotGPL = T)
 GPL_data_11 <- Table(GPL_data)
 
-#ÌáÈ¡±í´ïÁ¿
+#æå–è¡¨è¾¾é‡
 exp <- exprs(gset[[1]])
 probe_name<-rownames(exp)
 
-#×ª»»ID
+#è½¬æ¢ID
 loc<-match(GPL_data_11[,1],probe_name)
 probe_exp<-exp[loc,]
 raw_geneid<-(as.matrix(GPL_data_11[,"GENE_SYMBOL"]))
@@ -32,7 +32,7 @@ gene_exp_matrix<-apply(exp_matrix,2,function(x) tapply(x,geneidfactor,mean))
 rownames(gene_exp_matrix)<-levels(geneidfactor)
 gene_exp_matrix=na.omit(gene_exp_matrix)
 
-#####¶ÁÈ¡·Ö×éĞÅÏ¢#####
+#####è¯»å–åˆ†ç»„ä¿¡æ¯#####
 pdata <- pData(gset[[1]])
 group_list <- ifelse(str_detect(pdata$source_name_ch1,"primary breast tumour"), "T",
                      "N")
@@ -42,7 +42,7 @@ group_list = factor(group_list,
 group_list
 pdata$group=group_list
 
-#####½øĞĞÊı¾İ½ÃÕı#####
+#####è¿›è¡Œæ•°æ®çŸ«æ­£#####
 
 boxplot(gene_exp_matrix,outline=T, notch=T,col=group_list, las=2)
 dev.off()
@@ -51,14 +51,14 @@ boxplot(gene_exp_matrix_noemal,outline=T, notch=T,col=group_list, las=2)
 range(gene_exp_matrix_noemal)
 gene_exp_matrix_noemal <- log2(gene_exp_matrix_noemal+1)
 gene_exp_matrix_noemal <-as.data.frame(gene_exp_matrix_noemal)
-gene_exp_matrix_noemal=na.omit(gene_exp_matrix_noemal)#È¥³ıNAÁĞ
+gene_exp_matrix_noemal=na.omit(gene_exp_matrix_noemal)#å»é™¤NAåˆ—
 write.csv(gene_exp_matrix_noemal,file = "geo_exp.csv")
 range(gene_exp_matrix_noemal)
 dev.off()
 
-#####½øĞĞ²îÒì·ÖÎö#####
+#####è¿›è¡Œå·®å¼‚åˆ†æ#####
 design=model.matrix(~group_list)
-fit=lmFit(gene_exp_matrix_noemal,design)#ÕâÀïÒª×¢Òâ£¬·Ö×éµÄÑù±¾Óë¾ØÕóÑù±¾ÊÇ·ñÏà·û£¬²»Ïà·ûÔòÈ¥ÎÄ¼şÖĞµ÷ÕûÈ»ºó¶ÁÈë
+fit=lmFit(gene_exp_matrix_noemal,design)#è¿™é‡Œè¦æ³¨æ„ï¼Œåˆ†ç»„çš„æ ·æœ¬ä¸çŸ©é˜µæ ·æœ¬æ˜¯å¦ç›¸ç¬¦ï¼Œä¸ç›¸ç¬¦åˆ™å»æ–‡ä»¶ä¸­è°ƒæ•´ç„¶åè¯»å…¥
 fit=eBayes(fit)
 deg=topTable(fit,coef=2,number = Inf)
 write.table(deg, file = "deg_all.txt",sep = "\t",row.names = T,col.names = NA,quote = F)
