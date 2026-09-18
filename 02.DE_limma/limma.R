@@ -159,10 +159,7 @@ boxplot=ggboxplot(exp, x="Type", y="gene", color="Type",
                   legend.title="Type",
                   palette = c("blue","red"),
                   add = "jitter")+ 
-  stat_compare_means(comparisons=my_comparisons,symn
-                     um.args=list(cutpoints = c(0, 0.001, 0.01, 0.05, 1), symb
-                                      ols = c("***", "**", "*", "ns")),labe
-                     l = "p.signif")
+  stat_compare_means(comparisons=my_comparisons,symnum.args=list(cutpoints = c(0, 0.001, 0.01, 0.05, 1), symbols = c("***", "**", "*", "ns")),label = "p.signif")
 #???
 
 
